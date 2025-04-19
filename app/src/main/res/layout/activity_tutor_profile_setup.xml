@@ -1,0 +1,60 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/nameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="First Name"
+            android:inputType="textPersonName"
+            android:padding="10dp" />
+
+        <EditText
+            android:id="@+id/surnameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Last Name"
+            android:inputType="textPersonName"
+            android:padding="10dp" />
+
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="Profile Image"
+            android:src="@drawable/ic_add_photo"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:id="@+id/academicRecordImage"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="Academic Record Image"
+            android:src="@drawable/ic_add_photo"
+            android:scaleType="centerCrop" />
+
+        <MultiAutoCompleteTextView
+            android:id="@+id/modulesSelection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Modules (up to 4)"
+            android:inputType="text"
+            android:padding="10dp" />
+
+        <Button
+            android:id="@+id/saveProfileButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Save Profile" />
+    </LinearLayout>
+</ScrollView>

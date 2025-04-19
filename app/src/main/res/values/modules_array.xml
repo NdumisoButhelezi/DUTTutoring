@@ -1,0 +1,24 @@
+<resources>
+    <string-array name="modules_array">
+        <item>Mathematics</item>
+        <item>Physics</item>
+        <item>Chemistry</item>
+        <item>Biology</item>
+        <item>Computer Science</item>
+        <item>Economics</item>
+        <item>Accounting</item>
+        <item>Engineering</item>
+        <item>Statistics</item>
+        <item>Business Studies</item>
+        <item>Law</item>
+        <item>Medicine</item>
+        <item>Philosophy</item>
+        <item>History</item>
+        <item>Geography</item>
+        <item>Political Science</item>
+        <item>Psychology</item>
+        <item>Sociology</item>
+        <item>Languages</item>
+        <item>Art</item>
+    </string-array>
+</resources>

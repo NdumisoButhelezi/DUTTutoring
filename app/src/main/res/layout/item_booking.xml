@@ -1,0 +1,37 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/studentName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Student Name" />
+
+    <TextView
+        android:id="@+id/module"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Module" />
+
+    <TextView
+        android:id="@+id/dateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date and Time" />
+
+    <Button
+        android:id="@+id/approveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Approve" />
+
+    <Button
+        android:id="@+id/rejectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reject" />
+</LinearLayout>
