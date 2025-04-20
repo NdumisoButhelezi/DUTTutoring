@@ -12,12 +12,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DUTPeerTutoring"
         tools:targetApi="31">
+
+        <activity
+            android:name=".ModuleSuggestionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminSuggestionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminAnalyticsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SupportActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RescheduleBookingActivity"
+            android:exported="false" />
         <activity
             android:name=".CancelBookingActivity"
             android:exported="false" />
-        <activity
-            android:name=".ModuleSuggestionActivity"
-            android:exported="false" />
+
         <activity
             android:name=".BookingPageActivity"
             android:exported="false" />

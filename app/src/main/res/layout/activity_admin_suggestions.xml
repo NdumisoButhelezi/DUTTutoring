@@ -6,7 +6,7 @@
     android:padding="16dp">
 
     <ListView
-        android:id="@+id/suggestionsListView"
+        android:id="@+id/adminListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@android:color/darker_gray"

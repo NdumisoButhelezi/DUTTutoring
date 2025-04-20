@@ -1,77 +1,102 @@
 package com.example.dutpeertutoring;
 
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TutorDashboardActivity extends AppCompatActivity {
 
     private ListView bookingsListView;
-    private FirebaseFirestore firestore;
-    private String tutorId;
-    private List<Booking> bookingsList;
     private BookingAdapter bookingAdapter;
+    private List<Booking> bookingsList;
+    private FirebaseFirestore firestore;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutor_dashboard);
 
+        // Initialize UI components
         bookingsListView = findViewById(R.id.bookingsListView);
-        firestore = FirebaseFirestore.getInstance();
-        tutorId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         bookingsList = new ArrayList<>();
-        bookingAdapter = new BookingAdapter(this, bookingsList);
+        firestore = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
 
+        // Set up adapter
+        bookingAdapter = new BookingAdapter(this, bookingsList);
         bookingsListView.setAdapter(bookingAdapter);
 
-        fetchBookings();
+        // Fetch bookings and listen for updates
+        listenForBookings();
     }
 
-    private void fetchBookings() {
+    private void listenForBookings() {
+        String tutorId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+
+        if (tutorId == null) {
+            Toast.makeText(this, "User not authenticated!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Listen for real-time updates from Firestore
         firestore.collection("bookings")
-                .whereEqualTo("tutorId", tutorId)
-                .whereEqualTo("status", "Pending")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    bookingsList.clear();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Booking booking = document.toObject(Booking.class);
-                        booking.setId(document.getId());
-                        bookingsList.add(booking);
+                .whereEqualTo("tutorId", tutorId) // Fetch bookings specific to the logged-in tutor
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot value, FirebaseFirestoreException error) {
+                        if (error != null) {
+                            Toast.makeText(TutorDashboardActivity.this, "Failed to fetch bookings: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (value != null) {
+                            for (DocumentChange change : value.getDocumentChanges()) {
+                                switch (change.getType()) {
+                                    case ADDED:
+                                        // Add new booking
+                                        Booking newBooking = change.getDocument().toObject(Booking.class);
+                                        newBooking.setId(change.getDocument().getId());
+                                        bookingsList.add(newBooking);
+                                        break;
+
+                                    case MODIFIED:
+                                        // Update existing booking
+                                        String updatedId = change.getDocument().getId();
+                                        for (int i = 0; i < bookingsList.size(); i++) {
+                                            if (bookingsList.get(i).getId().equals(updatedId)) {
+                                                Booking updatedBooking = change.getDocument().toObject(Booking.class);
+                                                updatedBooking.setId(updatedId);
+                                                bookingsList.set(i, updatedBooking);
+                                                break;
+                                            }
+                                        }
+                                        break;
+
+                                    case REMOVED:
+                                        // Remove deleted booking
+                                        String removedId = change.getDocument().getId();
+                                        bookingsList.removeIf(booking -> booking.getId().equals(removedId));
+                                        break;
+                                }
+                            }
+
+                            // Notify adapter about data changes
+                            bookingAdapter.notifyDataSetChanged();
+                        }
                     }
-                    bookingAdapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch bookings: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
-
-    public void approveBooking(String bookingId) {
-        updateBookingStatus(bookingId, "Approved");
-    }
-
-    public void rejectBooking(String bookingId) {
-        updateBookingStatus(bookingId, "Rejected");
-    }
-
-    private void updateBookingStatus(String bookingId, String status) {
-        firestore.collection("bookings").document(bookingId)
-                .update("status", status)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Booking " + status.toLowerCase() + " successfully!", Toast.LENGTH_SHORT).show();
-                    fetchBookings();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to update booking: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                });
     }
 }

@@ -1,7 +1,6 @@
 package com.example.dutpeertutoring;
 
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -16,10 +15,9 @@ import java.util.List;
 public class AdminDashboardActivity extends AppCompatActivity {
 
     private ListView tutorsListView;
-    private Button refreshButton;
-    private FirebaseFirestore firestore;
-    private List<Tutor> tutorsList;
     private TutorAdapter tutorAdapter;
+    private List<Tutor> tutorsList;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,14 +25,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_dashboard);
 
         tutorsListView = findViewById(R.id.tutorsListView);
-        refreshButton = findViewById(R.id.refreshButton);
         firestore = FirebaseFirestore.getInstance();
         tutorsList = new ArrayList<>();
-        tutorAdapter = new TutorAdapter(this, tutorsList);
 
+        // Initialize the adapter with the list and context
+        tutorAdapter = new TutorAdapter(tutorsList, this);
         tutorsListView.setAdapter(tutorAdapter);
 
-        refreshButton.setOnClickListener(v -> fetchUnconfirmedTutors());
+        fetchUnconfirmedTutors();
     }
 
     private void fetchUnconfirmedTutors() {
@@ -51,15 +49,5 @@ public class AdminDashboardActivity extends AppCompatActivity {
                     tutorAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
-
-    public void confirmTutor(String tutorId) {
-        firestore.collection("users").document(tutorId)
-                .update("isConfirmed", true)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Tutor confirmed successfully!", Toast.LENGTH_SHORT).show();
-                    fetchUnconfirmedTutors();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to confirm tutor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

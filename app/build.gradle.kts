@@ -1,10 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
     namespace = "com.example.dutpeertutoring"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.dutpeertutoring"
@@ -34,6 +35,8 @@ android {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation(libs.appcompat)
+    implementation ("com.google.firebase:firebase-core:21.1.1")
+    implementation("com.github.yuyakaido:CardStackView:2.3.4")
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)

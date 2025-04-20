@@ -1,0 +1,39 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/totalTutorsText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total Tutors: 0"
+        android:textSize="18sp"
+        android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/totalStudentsText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total Students: 0"
+        android:textSize="18sp"
+        android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/totalBookingsText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total Bookings: 0"
+        android:textSize="18sp"
+        android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/averageRatingText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Average Rating: 0.0"
+        android:textSize="18sp"
+        android:padding="8dp" />
+</LinearLayout>

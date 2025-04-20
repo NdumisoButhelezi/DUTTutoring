@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                             Boolean profileComplete = documentSnapshot.getBoolean("profileComplete");
 
                             if (role != null) {
-                                if ("Security".equals(role)) { // Assuming "Security" is the role for tutors
+                                if ("Tutor".equals(role)) { // Assuming "Security" is the role for tutors
                                     if (Boolean.TRUE.equals(profileComplete)) {
                                         startActivity(new Intent(LoginActivity.this, TutorDashboardActivity.class));
                                     } else {

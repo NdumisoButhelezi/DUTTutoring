@@ -1,22 +1,21 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tutorName"
+    <EditText
+        android:id="@+id/issueInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tutor Name"
-        android:textStyle="bold"
-        android:textSize="16sp" />
+        android:hint="Describe your issue"
+        android:inputType="textMultiLine" />
 
-    <TextView
-        android:id="@+id/tutorModules"
+    <Button
+        android:id="@+id/submitButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Modules: "
-        android:textSize="14sp" />
+        android:text="Submit Issue"
+        android:layout_marginTop="16dp" />
 </LinearLayout>

@@ -2,13 +2,14 @@ package com.example.dutpeertutoring;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -23,7 +24,7 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
 
     private CardStackView cardStackView;
     private CardStackLayoutManager cardStackLayoutManager;
-    private TutorAdapter tutorAdapter;
+    private CardStackTutorAdapter cardStackTutorAdapter;
     private FirebaseFirestore firestore;
     private List<Tutor> tutorList;
 
@@ -38,8 +39,8 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
 
         firestore = FirebaseFirestore.getInstance();
         tutorList = new ArrayList<>();
-        tutorAdapter = new TutorAdapter(tutorList, this);
-        cardStackView.setAdapter(tutorAdapter);
+        cardStackTutorAdapter = new CardStackTutorAdapter(tutorList, this);
+        cardStackView.setAdapter(cardStackTutorAdapter);
 
         fetchTutors();
     }
@@ -55,7 +56,7 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
                         tutor.setId(document.getId());
                         tutorList.add(tutor);
                     }
-                    tutorAdapter.notifyDataSetChanged();
+                    cardStackTutorAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
@@ -100,8 +101,8 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
     public void onCardCanceled() { }
 
     @Override
-    public void onCardAppeared(int position, Object object) { }
+    public void onCardAppeared(View view, int position) { }
 
     @Override
-    public void onCardDisappeared(int position, Object object) { }
+    public void onCardDisappeared(View view, int position) { }
 }
