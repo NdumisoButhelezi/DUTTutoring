@@ -1,7 +1,11 @@
 package com.example.dutpeertutoring;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,9 +18,9 @@ import java.util.List;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    private ListView tutorsListView;
-    private TutorAdapter tutorAdapter;
-    private List<Tutor> tutorsList;
+    private ListView unconfirmedTutorsListView, confirmedTutorsListView;
+    private TutorAdapter unconfirmedTutorAdapter, confirmedTutorAdapter;
+    private List<Tutor> unconfirmedTutorsList, confirmedTutorsList;
     private FirebaseFirestore firestore;
 
     @Override
@@ -24,30 +28,73 @@ public class AdminDashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
-        tutorsListView = findViewById(R.id.tutorsListView);
+        // Initialize views
+        unconfirmedTutorsListView = findViewById(R.id.unconfirmedTutorsListView);
+        confirmedTutorsListView = findViewById(R.id.confirmedTutorsListView);
+
         firestore = FirebaseFirestore.getInstance();
-        tutorsList = new ArrayList<>();
+        unconfirmedTutorsList = new ArrayList<>();
+        confirmedTutorsList = new ArrayList<>();
 
-        // Initialize the adapter with the list and context
-        tutorAdapter = new TutorAdapter(tutorsList, this);
-        tutorsListView.setAdapter(tutorAdapter);
+        // Initialize adapters
+        unconfirmedTutorAdapter = new TutorAdapter(this, unconfirmedTutorsList);
+        confirmedTutorAdapter = new TutorAdapter(this, confirmedTutorsList);
 
+        // Set adapters to ListViews
+        unconfirmedTutorsListView.setAdapter(unconfirmedTutorAdapter);
+        confirmedTutorsListView.setAdapter(confirmedTutorAdapter);
+
+        // Fetch tutors
         fetchUnconfirmedTutors();
+        fetchConfirmedTutors();
+
+        // Handle click events for unconfirmed tutors
+        unconfirmedTutorsListView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
+            Tutor selectedTutor = unconfirmedTutorsList.get(position);
+            Intent intent = new Intent(AdminDashboardActivity.this, TutorDetailActivity.class);
+            intent.putExtra("tutorId", selectedTutor.getId());
+            startActivity(intent);
+        });
+
+        // Handle click events for confirmed tutors
+        confirmedTutorsListView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
+            Tutor selectedTutor = confirmedTutorsList.get(position);
+            Intent intent = new Intent(AdminDashboardActivity.this, TutorDetailActivity.class);
+            intent.putExtra("tutorId", selectedTutor.getId());
+            startActivity(intent);
+        });
     }
 
     private void fetchUnconfirmedTutors() {
         firestore.collection("users")
                 .whereEqualTo("isConfirmed", false)
+                .whereEqualTo("profileComplete", true) // Only fetch tutors with complete profiles
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    tutorsList.clear();
+                    unconfirmedTutorsList.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Tutor tutor = document.toObject(Tutor.class);
                         tutor.setId(document.getId());
-                        tutorsList.add(tutor);
+                        unconfirmedTutorsList.add(tutor);
                     }
-                    tutorAdapter.notifyDataSetChanged();
+                    unconfirmedTutorAdapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch unconfirmed tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void fetchConfirmedTutors() {
+        firestore.collection("users")
+                .whereEqualTo("isConfirmed", true) // Fetch only confirmed tutors
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    confirmedTutorsList.clear();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Tutor tutor = document.toObject(Tutor.class);
+                        tutor.setId(document.getId());
+                        confirmedTutorsList.add(tutor);
+                    }
+                    confirmedTutorAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch confirmed tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

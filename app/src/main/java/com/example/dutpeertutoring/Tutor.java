@@ -3,30 +3,24 @@ package com.example.dutpeertutoring;
 import java.util.List;
 
 public class Tutor {
-
-    private String id;
+    private String id; // Add this field
     private String name;
+    private String surname;
     private List<String> modules;
+    private boolean profileComplete;
+    private String role;
     private boolean isConfirmed;
+    private String email;
 
-    // Default constructor (required for Firestore deserialization)
-    public Tutor() {
-    }
+    // Default constructor (required for Firestore)
+    public Tutor() {}
 
-    // Constructor with parameters
-    public Tutor(String id, String name, List<String> modules, boolean isConfirmed) {
-        this.id = id;
-        this.name = name;
-        this.modules = modules;
-        this.isConfirmed = isConfirmed;
-    }
-
-    // Getters and Setters
-    public String getId() {
+    // Getters and setters
+    public String getId() { // Add this method
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(String id) { // Add this method
         this.id = id;
     }
 
@@ -38,6 +32,14 @@ public class Tutor {
         this.name = name;
     }
 
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
     public List<String> getModules() {
         return modules;
     }
@@ -46,11 +48,35 @@ public class Tutor {
         this.modules = modules;
     }
 
+    public boolean isProfileComplete() {
+        return profileComplete;
+    }
+
+    public void setProfileComplete(boolean profileComplete) {
+        this.profileComplete = profileComplete;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public boolean isConfirmed() {
         return isConfirmed;
     }
 
-    public void setConfirmed(boolean confirmed) {
-        isConfirmed = confirmed;
+    public void setConfirmed(boolean isConfirmed) {
+        this.isConfirmed = isConfirmed;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

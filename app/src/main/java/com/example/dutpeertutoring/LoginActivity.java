@@ -1,7 +1,5 @@
 package com.example.dutpeertutoring;
 
-;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -42,7 +40,6 @@ public class LoginActivity extends AppCompatActivity {
 
         loginButton.setOnClickListener(v -> loginUser());
         registerButton.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
-
     }
 
     private void loginUser() {
@@ -63,17 +60,22 @@ public class LoginActivity extends AppCompatActivity {
                         .addOnSuccessListener(documentSnapshot -> {
                             String role = documentSnapshot.getString("role");
                             Boolean profileComplete = documentSnapshot.getBoolean("profileComplete");
+                            Boolean isConfirmed = documentSnapshot.getBoolean("isConfirmed");
 
                             if (role != null) {
-                                if ("Tutor".equals(role)) { // Assuming "Security" is the role for tutors
-                                    if (Boolean.TRUE.equals(profileComplete)) {
-                                        startActivity(new Intent(LoginActivity.this, TutorDashboardActivity.class));
+                                if ("Tutor".equals(role)) {
+                                    if (Boolean.TRUE.equals(isConfirmed)) {
+                                        if (Boolean.TRUE.equals(profileComplete)) {
+                                            startActivity(new Intent(LoginActivity.this, TutorDashboardActivity.class));
+                                        } else {
+                                            startActivity(new Intent(LoginActivity.this, TutorProfileSetupActivity.class));
+                                        }
                                     } else {
-                                        startActivity(new Intent(LoginActivity.this, TutorProfileSetupActivity.class));
+                                        Toast.makeText(this, "Your account has not been approved yet.", Toast.LENGTH_SHORT).show();
                                     }
                                 } else if ("Admin".equals(role)) {
                                     startActivity(new Intent(LoginActivity.this, AdminDashboardActivity.class));
-                                } else if ("Student/Staff".equals(role)) {
+                                } else if ("Student/Tutee".equals(role)) {
                                     startActivity(new Intent(LoginActivity.this, StudentDashboardActivity.class));
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Unknown role: " + role, Toast.LENGTH_SHORT).show();

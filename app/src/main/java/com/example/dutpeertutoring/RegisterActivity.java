@@ -13,8 +13,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.dutpeertutoring.LoginActivity;
-import com.example.dutpeertutoring.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -72,15 +70,38 @@ public class RegisterActivity extends AppCompatActivity {
                 Map<String, Object> user = new HashMap<>();
                 user.put("email", email);
                 user.put("role", role);
+                user.put("isConfirmed", false); // Default to unconfirmed
+                user.put("profileComplete", false); // Default to incomplete
 
                 firestore.collection("users").document(userId).set(user)
                         .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                            switch (role) {
+                                case "Tutor":
+                                    // Redirect tutor to profile setup
+                                    Intent tutorIntent = new Intent(RegisterActivity.this, TutorProfileSetupActivity.class);
+                                    startActivity(tutorIntent);
+                                    break;
+
+                                case "Admin":
+                                    // Redirect admin to admin dashboard or setup
+                                    Intent adminIntent = new Intent(RegisterActivity.this, AdminDashboardActivity.class);
+                                    startActivity(adminIntent);
+                                    break;
+
+                                case "Student/Tutee":
+                                    // Redirect student/tutee to main application or dashboard
+                                    Intent studentIntent = new Intent(RegisterActivity.this, StudentDashboardActivity.class);
+                                    startActivity(studentIntent);
+                                    break;
+
+                                default:
+                                    Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                    break;
+                            }
                             finish();
                         })
-                        .addOnFailureListener(e -> Toast.makeText(RegisterActivity.this, "Failed to save role: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-
+                        .addOnFailureListener(e -> Toast.makeText(RegisterActivity.this, "Failed to save user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             } else {
                 Toast.makeText(RegisterActivity.this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }

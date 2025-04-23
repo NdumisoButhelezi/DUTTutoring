@@ -27,20 +27,20 @@
         <ImageView
             android:id="@+id/profileImage"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="262dp"
             android:layout_marginTop="8dp"
             android:contentDescription="Profile Image"
-            android:src="@drawable/ic_add_photo"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_profile" />
 
         <ImageView
             android:id="@+id/academicRecordImage"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="235dp"
             android:layout_marginTop="8dp"
             android:contentDescription="Academic Record Image"
-            android:src="@drawable/ic_add_photo"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_academic_record" />
 
         <MultiAutoCompleteTextView
             android:id="@+id/modulesSelection"

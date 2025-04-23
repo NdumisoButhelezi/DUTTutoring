@@ -3,27 +3,51 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/moduleName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Module Name"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:text="Module"
+        android:textStyle="bold"
+        android:textSize="16sp"/>
 
     <TextView
-        android:id="@+id/dateTime"
-        android:layout_width="match_parent"
+        android:id="@+id/dateText"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Date and Time"
-        android:textSize="14sp" />
+        android:text="Date"/>
+
+    <TextView
+        android:id="@+id/timesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time"/>
 
     <TextView
         android:id="@+id/statusText"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Status"
-        android:textSize="14sp" />
+        android:text="Status"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/approveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Approve" />
+
+        <Button
+            android:id="@+id/declineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decline"
+            android:layout_marginStart="16dp"/>
+    </LinearLayout>
 </LinearLayout>

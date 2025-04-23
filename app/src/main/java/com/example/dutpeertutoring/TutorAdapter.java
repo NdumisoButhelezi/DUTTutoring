@@ -10,23 +10,22 @@ import android.widget.TextView;
 import java.util.List;
 
 public class TutorAdapter extends BaseAdapter {
+    private final Context context;
+    private final List<Tutor> tutorList;
 
-    private List<Tutor> tutors;
-    private Context context;
-
-    public TutorAdapter(List<Tutor> tutors, Context context) {
-        this.tutors = tutors;
+    public TutorAdapter(Context context, List<Tutor> tutorList) {
         this.context = context;
+        this.tutorList = tutorList;
     }
 
     @Override
     public int getCount() {
-        return tutors.size();
+        return tutorList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return tutors.get(position);
+        return tutorList.get(position);
     }
 
     @Override
@@ -37,28 +36,16 @@ public class TutorAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_tutor_card, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_tutor, parent, false);
         }
 
-        Tutor tutor = tutors.get(position);
+        TextView nameTextView = convertView.findViewById(R.id.tutorNameTextView);
+        TextView modulesTextView = convertView.findViewById(R.id.tutorModulesTextView);
 
-        TextView name = convertView.findViewById(R.id.tutorName);
-        TextView modules = convertView.findViewById(R.id.tutorModules);
-
-        name.setText(tutor.getName());
-        modules.setText("Modules: " + String.join(", ", tutor.getModules()));
+        Tutor tutor = tutorList.get(position);
+        nameTextView.setText(tutor.getName());
+        modulesTextView.setText("Modules: " + String.join(", ", tutor.getModules()));
 
         return convertView;
-    }
-
-    @Override
-    public int getViewTypeCount() {
-        // Return at least 1, since ListView requires at least one view type.
-        return 1;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return tutors.isEmpty();
     }
 }

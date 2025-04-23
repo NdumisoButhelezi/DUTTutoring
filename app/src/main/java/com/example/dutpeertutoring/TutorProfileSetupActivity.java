@@ -114,14 +114,14 @@ public class TutorProfileSetupActivity extends AppCompatActivity {
         tutorProfile.put("name", name);
         tutorProfile.put("surname", surname);
         tutorProfile.put("modules", selectedModules);
-        tutorProfile.put("isConfirmed", false); // Admin confirmation required
+        tutorProfile.put("profileComplete", true);
 
         // Save profile to Firestore
-        firestore.collection("users").document(userId).set(tutorProfile)
+        firestore.collection("users").document(userId).update(tutorProfile)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Profile saved successfully!", Toast.LENGTH_SHORT).show();
-                    // Redirect to next activity (e.g., dashboard or login)
-                    startActivity(new Intent(TutorProfileSetupActivity.this, LoginActivity.class));
+                    // Redirect to tutor dashboard
+                    startActivity(new Intent(TutorProfileSetupActivity.this, TutorDashboardActivity.class));
                     finish();
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to save profile: " + e.getMessage(), Toast.LENGTH_SHORT).show());

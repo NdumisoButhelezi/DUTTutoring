@@ -19,7 +19,7 @@ import java.util.Map;
 public class BookingPageActivity extends AppCompatActivity {
 
     private DatePicker datePicker;
-    private TimePicker timePicker;
+    private TimePicker startTimePicker, endTimePicker;
     private Spinner moduleSpinner;
     private Button bookButton;
 
@@ -34,16 +34,18 @@ public class BookingPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_page);
 
-        datePicker = findViewById(R.id.datePicker);
-        timePicker = findViewById(R.id.timePicker);
+        startTimePicker = findViewById(R.id.startTimePicker);
+        endTimePicker = findViewById(R.id.endTimePicker);
+        startTimePicker.setIs24HourView(true);
+        endTimePicker.setIs24HourView(true);
+
         moduleSpinner = findViewById(R.id.moduleSpinner);
         bookButton = findViewById(R.id.bookButton);
 
         firestore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-        studentId = auth.getCurrentUser().getUid(); // cussent use ID
+        studentId = auth.getCurrentUser().getUid();
 
-        // Get tutor details from intent
         tutorId = getIntent().getStringExtra("tutorId");
         tutorName = getIntent().getStringExtra("tutorName");
         String[] tutorModules = getIntent().getStringArrayListExtra("tutorModules").toArray(new String[0]);
@@ -52,35 +54,59 @@ public class BookingPageActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         moduleSpinner.setAdapter(adapter);
 
-        bookButton.setOnClickListener(v -> bookSession());
+        bookButton.setOnClickListener(v -> validateAndBookSession());
     }
 
-    private void bookSession() {
+    private void validateAndBookSession() {
         String selectedModule = moduleSpinner.getSelectedItem().toString();
         int day = datePicker.getDayOfMonth();
         int month = datePicker.getMonth() + 1;
         int year = datePicker.getYear();
-        int hour = timePicker.getHour();
-        int minute = timePicker.getMinute();
 
-        String dateTime = day + "/" + month + "/" + year + " " + hour + ":" + minute;
+        int startHour = startTimePicker.getHour();
+        int startMinute = startTimePicker.getMinute();
+        int endHour = endTimePicker.getHour();
+        int endMinute = endTimePicker.getMinute();
+
+        String date = String.format("%04d-%02d-%02d", year, month, day);
+        String startTime = String.format("%02d:%02d", startHour, startMinute);
+        String endTime = String.format("%02d:%02d", endHour, endMinute);
+
+        if (selectedModule.isEmpty()) {
+            Toast.makeText(this, "Please select a module.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (endHour < startHour || (endHour == startHour && endMinute <= startMinute)) {
+            Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         Map<String, Object> booking = new HashMap<>();
         booking.put("studentId", studentId);
-        booking.put("studentName", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         booking.put("tutorId", tutorId);
         booking.put("tutorName", tutorName);
         booking.put("module", selectedModule);
-        booking.put("dateTime", dateTime);
+        booking.put("date", date);
+        booking.put("startTime", startTime);
+        booking.put("endTime", endTime);
         booking.put("status", "Pending");
+        booking.put("paid", false);
 
-        firestore.collection("bookings").add(booking)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Booking request sent!", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to book session: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        firestore.collection("bookings").whereEqualTo("studentId", studentId)
+                .whereEqualTo("tutorId", tutorId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        Toast.makeText(this, "You already have a pending booking with this tutor!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        firestore.collection("bookings").add(booking)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText(this, "Booking request sent!", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(this, "Failed to book session: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
                 });
     }
 }
