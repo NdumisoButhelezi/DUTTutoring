@@ -1,26 +1,23 @@
 package com.example.dutpeertutoring;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdminDashboardActivity extends AppCompatActivity {
+public class AdminDashboardActivity extends AppCompatActivity implements TutorAdapter.OnTutorActionListener {
 
-    private ListView unconfirmedTutorsListView, confirmedTutorsListView;
-    private TutorAdapter unconfirmedTutorAdapter, confirmedTutorAdapter;
-    private List<Tutor> unconfirmedTutorsList, confirmedTutorsList;
+    private RecyclerView unapprovedTutorsRecyclerView, approvedTutorsRecyclerView;
+    private TutorAdapter unapprovedTutorAdapter, approvedTutorAdapter;
+    private List<Tutor> unapprovedTutorsList, approvedTutorsList;
     private FirebaseFirestore firestore;
 
     @Override
@@ -28,73 +25,87 @@ public class AdminDashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
-        // Initialize views
-        unconfirmedTutorsListView = findViewById(R.id.unconfirmedTutorsListView);
-        confirmedTutorsListView = findViewById(R.id.confirmedTutorsListView);
+        // Initialize RecyclerViews
+        unapprovedTutorsRecyclerView = findViewById(R.id.unapprovedTutorsRecyclerView);
+        approvedTutorsRecyclerView = findViewById(R.id.approvedTutorsRecyclerView);
 
+        unapprovedTutorsList = new ArrayList<>();
+        approvedTutorsList = new ArrayList<>();
         firestore = FirebaseFirestore.getInstance();
-        unconfirmedTutorsList = new ArrayList<>();
-        confirmedTutorsList = new ArrayList<>();
 
-        // Initialize adapters
-        unconfirmedTutorAdapter = new TutorAdapter(this, unconfirmedTutorsList);
-        confirmedTutorAdapter = new TutorAdapter(this, confirmedTutorsList);
+        // Set up RecyclerViews
+        unapprovedTutorAdapter = new TutorAdapter(unapprovedTutorsList, this, this);
+        approvedTutorAdapter = new TutorAdapter(approvedTutorsList, this, this);
 
-        // Set adapters to ListViews
-        unconfirmedTutorsListView.setAdapter(unconfirmedTutorAdapter);
-        confirmedTutorsListView.setAdapter(confirmedTutorAdapter);
+        unapprovedTutorsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        unapprovedTutorsRecyclerView.setAdapter(unapprovedTutorAdapter);
+
+        approvedTutorsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        approvedTutorsRecyclerView.setAdapter(approvedTutorAdapter);
 
         // Fetch tutors
-        fetchUnconfirmedTutors();
-        fetchConfirmedTutors();
-
-        // Handle click events for unconfirmed tutors
-        unconfirmedTutorsListView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
-            Tutor selectedTutor = unconfirmedTutorsList.get(position);
-            Intent intent = new Intent(AdminDashboardActivity.this, TutorDetailActivity.class);
-            intent.putExtra("tutorId", selectedTutor.getId());
-            startActivity(intent);
-        });
-
-        // Handle click events for confirmed tutors
-        confirmedTutorsListView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
-            Tutor selectedTutor = confirmedTutorsList.get(position);
-            Intent intent = new Intent(AdminDashboardActivity.this, TutorDetailActivity.class);
-            intent.putExtra("tutorId", selectedTutor.getId());
-            startActivity(intent);
-        });
+        fetchTutors();
     }
 
-    private void fetchUnconfirmedTutors() {
+    private void fetchTutors() {
         firestore.collection("users")
-                .whereEqualTo("isConfirmed", false)
-                .whereEqualTo("profileComplete", true) // Only fetch tutors with complete profiles
+                .whereEqualTo("role", "Tutor")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    unconfirmedTutorsList.clear();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Tutor tutor = document.toObject(Tutor.class);
-                        tutor.setId(document.getId());
-                        unconfirmedTutorsList.add(tutor);
+                    unapprovedTutorsList.clear();
+                    approvedTutorsList.clear();
+
+                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+                        Tutor tutor = documentSnapshot.toObject(Tutor.class);
+                        if (tutor != null) {
+                            tutor.setId(documentSnapshot.getId()); // Set the document ID
+                            if (tutor.isApproved()) {
+                                approvedTutorsList.add(tutor);
+                            } else {
+                                unapprovedTutorsList.add(tutor);
+                            }
+                        }
                     }
-                    unconfirmedTutorAdapter.notifyDataSetChanged();
+
+                    unapprovedTutorAdapter.notifyDataSetChanged();
+                    approvedTutorAdapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch unconfirmed tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void fetchConfirmedTutors() {
-        firestore.collection("users")
-                .whereEqualTo("isConfirmed", true) // Fetch only confirmed tutors
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    confirmedTutorsList.clear();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Tutor tutor = document.toObject(Tutor.class);
-                        tutor.setId(document.getId());
-                        confirmedTutorsList.add(tutor);
-                    }
-                    confirmedTutorAdapter.notifyDataSetChanged();
+    @Override
+    public void onApproveTutor(Tutor tutor) {
+        if (tutor.getId() == null || tutor.getId().isEmpty()) {
+            Toast.makeText(this, "Cannot approve tutor: Missing document ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        firestore.collection("users").document(tutor.getId())
+                .update("approved", true)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Approved: " + tutor.getName(), Toast.LENGTH_SHORT).show();
+                    unapprovedTutorsList.remove(tutor);
+                    approvedTutorsList.add(tutor);
+                    unapprovedTutorAdapter.notifyDataSetChanged();
+                    approvedTutorAdapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch confirmed tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to approve tutor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onRejectTutor(Tutor tutor) {
+        if (tutor.getId() == null || tutor.getId().isEmpty()) {
+            Toast.makeText(this, "Cannot reject tutor: Missing document ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        firestore.collection("users").document(tutor.getId())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Rejected: " + tutor.getName(), Toast.LENGTH_SHORT).show();
+                    unapprovedTutorsList.remove(tutor);
+                    unapprovedTutorAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to reject tutor: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

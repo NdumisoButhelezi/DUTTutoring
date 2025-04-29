@@ -1,26 +1,34 @@
 package com.example.dutpeertutoring;
 
+import android.graphics.Bitmap;
+
+import com.google.firebase.firestore.PropertyName;
+
 import java.util.List;
 
 public class Tutor {
-    private String id; // Add this field
+    private String id;
     private String name;
     private String surname;
     private List<String> modules;
     private boolean profileComplete;
     private String role;
     private boolean isConfirmed;
+    private boolean approved; // Field to track approval status
     private String email;
+    private Bitmap profileImageBitmap;
+    private String profileImageBase64;
+    private String status;
 
     // Default constructor (required for Firestore)
     public Tutor() {}
 
     // Getters and setters
-    public String getId() { // Add this method
+    public String getId() {
         return id;
     }
 
-    public void setId(String id) { // Add this method
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -64,19 +72,53 @@ public class Tutor {
         this.role = role;
     }
 
-    public boolean isConfirmed() {
-        return isConfirmed;
-    }
-
-    public void setConfirmed(boolean isConfirmed) {
-        this.isConfirmed = isConfirmed;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isApproved() { // Getter for approval status
+        return approved;
+    }
+
+    public void setApproved(boolean approved) { // Setter for approval status
+        this.approved = approved;
+    }
+
+    public Bitmap getProfileImageBitmap() {
+        return profileImageBitmap;
+    }
+
+    public void setProfileImageBitmap(Bitmap profileImageBitmap) {
+        this.profileImageBitmap = profileImageBitmap;
+    }
+
+    public String getProfileImageBase64() {
+        return profileImageBase64;
+    }
+
+    public void setProfileImageBase64(String profileImageBase64) {
+        this.profileImageBase64 = profileImageBase64;
+    }
+
+    @PropertyName("isConfirmed")
+    public boolean isConfirmed() {
+        return isConfirmed;
+    }
+
+    @PropertyName("isConfirmed")
+    public void setConfirmed(boolean isConfirmed) {
+        this.isConfirmed = isConfirmed;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

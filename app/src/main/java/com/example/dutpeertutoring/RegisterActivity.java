@@ -4,14 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,6 +29,8 @@ public class RegisterActivity extends AppCompatActivity {
     private Spinner roleSpinner;
     private Button registerButton;
     private ProgressBar progressBar;
+    private TextView loginLink;
+    private CardView registerCard;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
 
@@ -36,19 +42,39 @@ public class RegisterActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
 
+        // Initialize views
         emailInput = findViewById(R.id.email);
         passwordInput = findViewById(R.id.password);
         roleSpinner = findViewById(R.id.roleSpinner);
         registerButton = findViewById(R.id.registerBtn);
         progressBar = findViewById(R.id.progressBar);
+        loginLink = findViewById(R.id.loginLink);
+        registerCard = findViewById(R.id.registerCard);
+
+        // Apply entrance animation
+        Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        registerCard.startAnimation(fadeIn);
 
         // Set up the roles dropdown
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.roles_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.array.roles_array, R.layout.spinner_item);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         roleSpinner.setAdapter(adapter);
 
-        registerButton.setOnClickListener(v -> registerUser());
+        // Set click listeners
+        registerButton.setOnClickListener(v -> {
+            // Apply button click animation
+            Animation buttonAnim = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+            registerButton.startAnimation(buttonAnim);
+            registerUser();
+        });
+
+        loginLink.setOnClickListener(v -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            finish();
+        });
     }
 
     private void registerUser() {
@@ -56,14 +82,32 @@ public class RegisterActivity extends AppCompatActivity {
         String password = passwordInput.getText().toString().trim();
         String role = roleSpinner.getSelectedItem().toString();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || role.equals("Select Role")) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+        // Input validation
+        if (TextUtils.isEmpty(email)) {
+            showError(emailInput, "Email is required");
             return;
         }
 
+        if (TextUtils.isEmpty(password)) {
+            showError(passwordInput, "Password is required");
+            return;
+        }
+
+        if (password.length() < 6) {
+            showError(passwordInput, "Password must be at least 6 characters");
+            return;
+        }
+
+        if (role.equals("Select Role")) {
+            Toast.makeText(this, "Please select a role", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show progress and disable button
         progressBar.setVisibility(View.VISIBLE);
+        registerButton.setEnabled(false);
+
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-            progressBar.setVisibility(View.GONE);
             if (task.isSuccessful()) {
                 String userId = auth.getCurrentUser().getUid();
                 // Save the user's role in Firestore
@@ -75,36 +119,50 @@ public class RegisterActivity extends AppCompatActivity {
 
                 firestore.collection("users").document(userId).set(user)
                         .addOnSuccessListener(aVoid -> {
+                            progressBar.setVisibility(View.GONE);
+
+                            // Show success animation and message
+                            Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+
+                            // Redirect based on role
+                            Intent intent;
                             switch (role) {
                                 case "Tutor":
-                                    // Redirect tutor to profile setup
-                                    Intent tutorIntent = new Intent(RegisterActivity.this, TutorProfileSetupActivity.class);
-                                    startActivity(tutorIntent);
+                                    intent = new Intent(RegisterActivity.this, TutorProfileSetupActivity.class);
                                     break;
-
                                 case "Admin":
-                                    // Redirect admin to admin dashboard or setup
-                                    Intent adminIntent = new Intent(RegisterActivity.this, AdminDashboardActivity.class);
-                                    startActivity(adminIntent);
+                                    intent = new Intent(RegisterActivity.this, AdminDashboardActivity.class);
                                     break;
-
                                 case "Student/Tutee":
-                                    // Redirect student/tutee to main application or dashboard
-                                    Intent studentIntent = new Intent(RegisterActivity.this, StudentDashboardActivity.class);
-                                    startActivity(studentIntent);
+                                    intent = new Intent(RegisterActivity.this, StudentDashboardActivity.class);
                                     break;
-
                                 default:
-                                    Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                                    intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                     break;
                             }
+
+                            startActivity(intent);
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                             finish();
                         })
-                        .addOnFailureListener(e -> Toast.makeText(RegisterActivity.this, "Failed to save user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        .addOnFailureListener(e -> {
+                            progressBar.setVisibility(View.GONE);
+                            registerButton.setEnabled(true);
+                            Toast.makeText(RegisterActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
             } else {
+                progressBar.setVisibility(View.GONE);
+                registerButton.setEnabled(true);
                 Toast.makeText(RegisterActivity.this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showError(EditText input, String message) {
+        input.setError(message);
+        input.requestFocus();
+        // Shake animation for error
+        Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+        input.startAnimation(shake);
     }
 }

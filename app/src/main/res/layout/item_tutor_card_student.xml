@@ -6,41 +6,41 @@
 
     <!-- Profile Image -->
     <ImageView
-        android:id="@+id/tutorImage"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:id="@+id/tutorProfileImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:src="@drawable/default_profile_image" />
 
     <!-- Tutor Name -->
     <TextView
-        android:id="@+id/tutorName"
+        android:id="@+id/tutorNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Tutor Name"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
         android:layout_marginBottom="4dp" />
 
-    <!-- Modules -->
+    <!-- Tutor Modules -->
     <TextView
-        android:id="@+id/tutorModules"
+        android:id="@+id/tutorModulesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Modules: Example Module"
         android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="4dp" />
 
-    <!-- Status Icon -->
-    <ImageView
-        android:id="@+id/tutorStatusIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+    <!-- Tutor Status -->
+    <TextView
+        android:id="@+id/tutorStatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/ic_status_default" />
+        android:text="Status: Available"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
 </LinearLayout>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="?attr/colorPrimary"
+        android:pathData="M60,0A60,60 0 1,0 60,120A60,60 0 1,0 60,0z" />
+
+    <!-- Book Pages -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,30h40v60h-40z" />
+
+    <!-- Book Binding -->
+    <path
+        android:fillColor="#EEEEEE"
+        android:pathData="M35,30h5v60h-5z" />
+
+    <!-- Lines representing text -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M45,45h25v2h-25z" />
+
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M45,55h30v2h-30z" />
+
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M45,65h20v2h-20z" />
+
+    <!-- Mortar Board (Graduation Cap) -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M60,35l15,7.5l-15,7.5l-15,-7.5z" />
+
+    <path
+        android:fillColor="#000000"
+        android:pathData="M58,48v10l2,-1l2,1v-10l-2,-1z" />
+
+    <!-- Tassel -->
+    <path
+        android:fillColor="#666666"
+        android:pathData="M62,35c0,0 2,-3 0,-5c-2,-2 -4,0 -4,0c0,0 -2,-2 -4,0c-2,2 0,5 0,5" />
+
+</vector>

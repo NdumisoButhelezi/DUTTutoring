@@ -1,9 +1,13 @@
 package com.example.dutpeertutoring;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,15 +28,26 @@ public class CardStackTutorAdapter extends RecyclerView.Adapter<CardStackTutorAd
     @NonNull
     @Override
     public TutorViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_tutor_card, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_tutor_card_student, parent, false);
         return new TutorViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull TutorViewHolder holder, int position) {
         Tutor tutor = tutors.get(position);
-        holder.name.setText(tutor.getName());
-        holder.modules.setText("Modules: " + String.join(", ", tutor.getModules()));
+
+        holder.nameTextView.setText(tutor.getName());
+        holder.modulesTextView.setText("Modules: " + String.join(", ", tutor.getModules()));
+        holder.statusTextView.setText("Status: " + tutor.getStatus());
+
+        String base64Image = tutor.getProfileImageBase64();
+        if (base64Image != null && !base64Image.isEmpty()) {
+            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            holder.profileImageView.setImageBitmap(bitmap);
+        } else {
+            holder.profileImageView.setImageResource(R.drawable.default_profile_image); // Default image
+        }
     }
 
     @Override
@@ -41,18 +56,15 @@ public class CardStackTutorAdapter extends RecyclerView.Adapter<CardStackTutorAd
     }
 
     public static class TutorViewHolder extends RecyclerView.ViewHolder {
-        TextView name, modules;
+        ImageView profileImageView;
+        TextView nameTextView, modulesTextView, statusTextView;
 
         public TutorViewHolder(@NonNull View itemView) {
             super(itemView);
-            name = itemView.findViewById(R.id.tutorName);
-            modules = itemView.findViewById(R.id.tutorModules);
+            profileImageView = itemView.findViewById(R.id.tutorProfileImageView);
+            nameTextView = itemView.findViewById(R.id.tutorNameTextView);
+            modulesTextView = itemView.findViewById(R.id.tutorModulesTextView);
+            statusTextView = itemView.findViewById(R.id.tutorStatusTextView);
         }
-    }
-
-    // Helper method to update the list of tutors
-    public void setTutors(List<Tutor> tutors) {
-        this.tutors = tutors;
-        notifyDataSetChanged();
     }
 }

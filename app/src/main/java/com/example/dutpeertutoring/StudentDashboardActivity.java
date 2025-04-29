@@ -1,23 +1,26 @@
 package com.example.dutpeertutoring;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackView;
 import com.yuyakaido.android.cardstackview.Direction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class StudentDashboardActivity extends AppCompatActivity implements CardStackListener {
 
@@ -52,18 +55,25 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
     }
 
     private void fetchTutors() {
-        Toast.makeText(this, "Loading tutors...", Toast.LENGTH_SHORT).show();
-
         firestore.collection("users")
-                .whereEqualTo("isConfirmed", true)
+                .whereEqualTo("role", "Tutor")
+                .whereEqualTo("approved", true)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     tutorList.clear();
-                    for (com.google.firebase.firestore.QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Tutor tutor = document.toObject(Tutor.class);
-                        tutor.setId(document.getId());
+
+                    // Iterate through QueryDocumentSnapshot
+                    for (QueryDocumentSnapshot tutorDoc : queryDocumentSnapshots) {
+                        Tutor tutor = new Tutor();
+                        tutor.setId(tutorDoc.getId()); // Get the document ID
+                        tutor.setName(tutorDoc.getString("name"));
+                        tutor.setModules((List<String>) tutorDoc.get("modules"));
+                        tutor.setProfileImageBase64(tutorDoc.getString("profileImageBase64"));
+                        tutor.setStatus("Available");
+
                         tutorList.add(tutor);
                     }
+
                     if (tutorList.isEmpty()) {
                         Toast.makeText(this, "No tutors available at the moment.", Toast.LENGTH_SHORT).show();
                     }
@@ -81,21 +91,9 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
 
         if (direction == Direction.Left) {
             // Reject the tutor
-            String studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-            Map<String, Object> rejection = new HashMap<>();
-            rejection.put("studentId", studentId);
-            rejection.put("tutorId", swipedTutor.getId());
-            rejection.put("status", "Rejected");
-
-            firestore.collection("rejections").add(rejection)
-                    .addOnSuccessListener(documentReference -> {
-                        Toast.makeText(this, "Tutor rejected!", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to reject tutor: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
+            Toast.makeText(this, "Tutor rejected!", Toast.LENGTH_SHORT).show();
         } else if (direction == Direction.Right) {
+            // Open the booking page for the selected tutor
             Intent intent = new Intent(this, BookingPageActivity.class);
             intent.putExtra("tutorId", swipedTutor.getId());
             intent.putExtra("tutorName", swipedTutor.getName());
@@ -110,6 +108,6 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
     @Override public void onCardDragging(Direction direction, float ratio) { }
     @Override public void onCardRewound() { }
     @Override public void onCardCanceled() { }
-    @Override public void onCardAppeared(android.view.View view, int position) { }
-    @Override public void onCardDisappeared(android.view.View view, int position) { }
+    @Override public void onCardAppeared(View view, int position) { }
+    @Override public void onCardDisappeared(View view, int position) { }
 }
