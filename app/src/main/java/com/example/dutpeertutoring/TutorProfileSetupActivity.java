@@ -24,7 +24,6 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
@@ -38,6 +37,7 @@ public class TutorProfileSetupActivity extends AppCompatActivity {
 
     private static final int PICK_PROFILE_IMAGE = 1;
     private static final int PICK_ACADEMIC_RECORD = 2;
+    private static final int MAX_BASE64_SIZE = 3 * 1024 * 1024; // 3 MB
 
     private TextInputEditText nameInput, surnameInput;
     private ShapeableImageView profileImage;
@@ -107,20 +107,35 @@ public class TutorProfileSetupActivity extends AppCompatActivity {
                 switch (requestCode) {
                     case PICK_PROFILE_IMAGE:
                         profileBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                        profileBitmap = resizeBitmap(profileBitmap, 500, 500); // Resize before display
                         profileImage.setImageBitmap(profileBitmap);
                         break;
                     case PICK_ACADEMIC_RECORD:
                         academicRecordBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
                         academicRecordImage.setImageBitmap(academicRecordBitmap);
-                        academicRecordStatus.setText("Academic record uploaded");
+                        academicRecordStatus.setText(R.string.academic_record_uploaded);
                         academicRecordStatus.setTextColor(getResources().getColor(R.color.colorPrimary));
                         break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.failed_to_load_image, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxWidth;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxHeight;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(bitmap, width, height, true);
     }
 
     private void saveTutorProfile() {
@@ -130,7 +145,7 @@ public class TutorProfileSetupActivity extends AppCompatActivity {
 
         // Validate input
         if (name.isEmpty() || surname.isEmpty() || modules.isEmpty() || profileBitmap == null || academicRecordBitmap == null) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.all_fields_required, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -144,8 +159,16 @@ public class TutorProfileSetupActivity extends AppCompatActivity {
 
         // Convert profile image to Base64
         ByteArrayOutputStream profileBaos = new ByteArrayOutputStream();
-        profileBitmap.compress(Bitmap.CompressFormat.JPEG, 70, profileBaos);
+        profileBitmap.compress(Bitmap.CompressFormat.JPEG, 50, profileBaos); // Compression quality: 50
         String base64ProfileImage = Base64.encodeToString(profileBaos.toByteArray(), Base64.DEFAULT);
+
+        // Validate Base64 size
+        if (base64ProfileImage.length() > MAX_BASE64_SIZE) { // 3 MB limit
+            Toast.makeText(this, R.string.image_too_large, Toast.LENGTH_SHORT).show();
+            progressIndicator.setVisibility(View.GONE);
+            saveProfileButton.setEnabled(true);
+            return;
+        }
 
         // Convert academic record to Base64
         ByteArrayOutputStream academicBaos = new ByteArrayOutputStream();
@@ -160,19 +183,21 @@ public class TutorProfileSetupActivity extends AppCompatActivity {
         tutorProfile.put("modules", selectedModules);
         tutorProfile.put("profileImageBase64", base64ProfileImage);
         tutorProfile.put("academicRecordBase64", base64AcademicRecord);
+        tutorProfile.put("approved", false);
+        tutorProfile.put("role", "Tutor");
 
         // Save to Firestore
         firestore.collection("users").document(userId)
                 .set(tutorProfile)
                 .addOnSuccessListener(aVoid -> {
                     progressIndicator.setVisibility(View.GONE);
-                    Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.profile_saved_successfully, Toast.LENGTH_SHORT).show();
                     saveProfileButton.setEnabled(true);
                 })
                 .addOnFailureListener(e -> {
                     progressIndicator.setVisibility(View.GONE);
                     saveProfileButton.setEnabled(true);
-                    Toast.makeText(this, "Failed to save profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.failed_to_save_profile, e.getMessage()), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -205,13 +230,13 @@ public class TutorProfileSetupActivity extends AppCompatActivity {
                             byte[] decodedAcademic = Base64.decode(base64AcademicRecord, Base64.DEFAULT);
                             Bitmap academicBitmap = BitmapFactory.decodeByteArray(decodedAcademic, 0, decodedAcademic.length);
                             academicRecordImage.setImageBitmap(academicBitmap);
-                            academicRecordStatus.setText("Academic record uploaded");
+                            academicRecordStatus.setText(R.string.academic_record_uploaded);
                             academicRecordStatus.setTextColor(getResources().getColor(R.color.colorPrimary));
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.failed_to_load_profile, Toast.LENGTH_SHORT).show();
                 });
     }
 }

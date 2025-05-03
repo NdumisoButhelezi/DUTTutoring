@@ -1,59 +1,74 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_margin="8dp"
+    android:elevation="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardUseCompatPadding="true">
 
-    <!-- Profile Image -->
-    <ImageView
-        android:id="@+id/tutorProfileImageView"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/default_profile_image" />
-
-    <!-- Tutor Name -->
-    <TextView
-        android:id="@+id/tutorNameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Tutor Name"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp" />
-
-    <!-- Modules -->
-    <TextView
-        android:id="@+id/tutorModulesTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Modules: Example Module"
-        android:textSize="14sp"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <Button
-            android:id="@+id/approveButton"
+        <!-- Profile Image -->
+        <ImageView
+            android:id="@+id/tutorProfileImageView"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/default_profile_image"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/circle_background" />
+
+        <!-- Tutor Name -->
+        <TextView
+            android:id="@+id/tutorNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Approve"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@color/colorPrimary" />
+            android:text="Tutor Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="4dp" />
 
-        <Button
-            android:id="@+id/rejectButton"
-            android:layout_width="wrap_content"
+        <!-- Modules -->
+        <TextView
+            android:id="@+id/tutorModulesTextView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Reject"
-            android:backgroundTint="@color/colorAccent" />
+            android:text="Modules: Sample Module"
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Approve/Reject Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/approveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Approve"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="@android:color/white"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/rejectButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reject"
+                android:backgroundTint="@color/colorAccent"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

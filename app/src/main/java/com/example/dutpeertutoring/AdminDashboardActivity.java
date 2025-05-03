@@ -59,9 +59,9 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
                         Tutor tutor = documentSnapshot.toObject(Tutor.class);
                         if (tutor != null) {
                             tutor.setId(documentSnapshot.getId()); // Set the document ID
-                            if (tutor.isApproved()) {
+                            if (Boolean.TRUE.equals(tutor.isApproved())) { // Approved tutors
                                 approvedTutorsList.add(tutor);
-                            } else {
+                            } else { // Unapproved tutors
                                 unapprovedTutorsList.add(tutor);
                             }
                         }
@@ -85,6 +85,7 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Approved: " + tutor.getName(), Toast.LENGTH_SHORT).show();
                     unapprovedTutorsList.remove(tutor);
+                    tutor.setApproved(true);
                     approvedTutorsList.add(tutor);
                     unapprovedTutorAdapter.notifyDataSetChanged();
                     approvedTutorAdapter.notifyDataSetChanged();

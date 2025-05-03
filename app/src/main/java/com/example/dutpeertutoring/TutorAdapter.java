@@ -3,6 +3,7 @@ package com.example.dutpeertutoring;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -39,8 +42,10 @@ public class TutorAdapter extends RecyclerView.Adapter<TutorAdapter.TutorViewHol
     public void onBindViewHolder(@NonNull TutorViewHolder holder, int position) {
         Tutor tutor = tutors.get(position);
 
-        holder.nameTextView.setText(tutor.getName());
-        // Safely handle modules
+        // Set the tutor's name
+        holder.nameTextView.setText(tutor.getName() != null ? tutor.getName() : "Unknown Tutor");
+
+        // Set the modules
         List<String> modules = tutor.getModules();
         if (modules != null && !modules.isEmpty()) {
             holder.modulesTextView.setText("Modules: " + String.join(", ", modules));
@@ -48,16 +53,20 @@ public class TutorAdapter extends RecyclerView.Adapter<TutorAdapter.TutorViewHol
             holder.modulesTextView.setText("Modules: No modules available");
         }
 
-
+        // Load the profile image using Glide
         String base64Image = tutor.getProfileImageBase64();
         if (base64Image != null && !base64Image.isEmpty()) {
             byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-            holder.profileImageView.setImageBitmap(bitmap);
+            Glide.with(context)
+                    .asBitmap()
+                    .load(decodedBytes)
+                    .placeholder(R.drawable.default_profile_image)
+                    .into(holder.profileImageView);
         } else {
             holder.profileImageView.setImageResource(R.drawable.default_profile_image);
         }
 
+        // Set click listeners for buttons
         holder.approveButton.setOnClickListener(v -> onTutorActionListener.onApproveTutor(tutor));
         holder.rejectButton.setOnClickListener(v -> onTutorActionListener.onRejectTutor(tutor));
     }

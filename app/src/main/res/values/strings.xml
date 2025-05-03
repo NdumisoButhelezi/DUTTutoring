@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">DUTPeerTutoring</string>
     <string name="profile_image">Profile Image</string>
+    <string name="academic_record_uploaded">Academic record uploaded</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="all_fields_required">All fields are required</string>
+    <string name="image_too_large">Profile image is too large. Please select a smaller image.</string>
+    <string name="profile_saved_successfully">Profile saved successfully</string>
+    <string name="failed_to_save_profile">Failed to save profile: %1$s</string>
+    <string name="failed_to_load_profile">Failed to load profile</string>
 </resources>

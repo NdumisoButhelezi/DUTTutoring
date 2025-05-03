@@ -8,12 +8,15 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -56,8 +59,10 @@ public class MainActivity extends AppCompatActivity {
             String userEmail = currentUser.getEmail();
             if (userEmail != null) {
                 String username = userEmail.split("@")[0];
-                appTitle.setText(String.format("Welcome, %s", username));
+                appTitle.setText(String.format("Peer 2 Peer, %s", username)); // Fix: Add username as the argument
             }
+        } else {
+            appTitle.setText("Peer 2 Peer"); // Default title if no user is logged in
         }
 
         // Apply animations

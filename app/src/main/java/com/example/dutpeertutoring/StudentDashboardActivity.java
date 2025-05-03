@@ -11,7 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.yuyakaido.android.cardstackview.CardStackListener;
@@ -61,11 +61,9 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     tutorList.clear();
-
-                    // Iterate through QueryDocumentSnapshot
-                    for (QueryDocumentSnapshot tutorDoc : queryDocumentSnapshots) {
+                    for (DocumentSnapshot tutorDoc : queryDocumentSnapshots.getDocuments()) { // Use getDocuments()
                         Tutor tutor = new Tutor();
-                        tutor.setId(tutorDoc.getId()); // Get the document ID
+                        tutor.setId(tutorDoc.getId());
                         tutor.setName(tutorDoc.getString("name"));
                         tutor.setModules((List<String>) tutorDoc.get("modules"));
                         tutor.setProfileImageBase64(tutorDoc.getString("profileImageBase64"));
@@ -79,21 +77,20 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
                     }
                     cardStackTutorAdapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show(); // Use getMessage()
+                });
     }
 
     @Override
     public void onCardSwiped(Direction direction) {
-        if (tutorList.isEmpty()) {
-            return;
-        }
+        if (tutorList.isEmpty()) return;
+
         Tutor swipedTutor = tutorList.get(cardStackLayoutManager.getTopPosition() - 1);
 
         if (direction == Direction.Left) {
-            // Reject the tutor
             Toast.makeText(this, "Tutor rejected!", Toast.LENGTH_SHORT).show();
         } else if (direction == Direction.Right) {
-            // Open the booking page for the selected tutor
             Intent intent = new Intent(this, BookingPageActivity.class);
             intent.putExtra("tutorId", swipedTutor.getId());
             intent.putExtra("tutorName", swipedTutor.getName());
@@ -105,9 +102,9 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
         cardStackTutorAdapter.notifyDataSetChanged();
     }
 
-    @Override public void onCardDragging(Direction direction, float ratio) { }
-    @Override public void onCardRewound() { }
-    @Override public void onCardCanceled() { }
-    @Override public void onCardAppeared(View view, int position) { }
-    @Override public void onCardDisappeared(View view, int position) { }
+    @Override public void onCardDragging(Direction direction, float ratio) {}
+    @Override public void onCardRewound() {}
+    @Override public void onCardCanceled() {}
+    @Override public void onCardAppeared(View view, int position) {}
+    @Override public void onCardDisappeared(View view, int position) {}
 }

@@ -3,6 +3,7 @@ package com.example.dutpeertutoring;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,19 +41,37 @@ public class CardStackTutorAdapter extends RecyclerView.Adapter<CardStackTutorAd
         holder.modulesTextView.setText("Modules: " + String.join(", ", tutor.getModules()));
         holder.statusTextView.setText("Status: " + tutor.getStatus());
 
+        // Lazy loading of images
         String base64Image = tutor.getProfileImageBase64();
-        if (base64Image != null && !base64Image.isEmpty()) {
-            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-            holder.profileImageView.setImageBitmap(bitmap);
-        } else {
-            holder.profileImageView.setImageResource(R.drawable.default_profile_image); // Default image
-        }
+        loadImageAsync(base64Image, holder.profileImageView);
     }
 
     @Override
     public int getItemCount() {
         return tutors.size();
+    }
+
+    private void loadImageAsync(String base64Image, ImageView imageView) {
+        new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... voids) {
+                try {
+                    byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                    return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                if (bitmap != null) {
+                    imageView.setImageBitmap(bitmap);
+                } else {
+                    imageView.setImageResource(R.drawable.default_profile_image); // Fallback image
+                }
+            }
+        }.execute();
     }
 
     public static class TutorViewHolder extends RecyclerView.ViewHolder {
