@@ -16,6 +16,18 @@
         android:theme="@style/Theme.DUTPeerTutoring"
         tools:targetApi="31">
         <activity
+            android:name=".TutorLeaderboardAdapter"
+            android:exported="false" />
+        <activity
+            android:name=".TutorLeaderboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentResourcesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TutorSessionActivity"
+            android:exported="false" />
+        <activity
             android:name=".AcceptedBookingsActivity"
             android:exported="false" />
         <activity

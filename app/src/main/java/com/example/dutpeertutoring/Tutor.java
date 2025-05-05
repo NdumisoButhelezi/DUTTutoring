@@ -19,6 +19,7 @@ public class Tutor {
     private Bitmap profileImageBitmap;
     private String profileImageBase64;
     private String status;
+    private double rating;
 
     // Default constructor (required for Firestore)
     public Tutor() {}
@@ -43,6 +44,10 @@ public class Tutor {
     public String getSurname() {
         return surname;
     }
+    public double getRating() {
+        return rating;
+    }
+
 
     public void setSurname(String surname) {
         this.surname = surname;
@@ -102,6 +107,9 @@ public class Tutor {
 
     public void setProfileImageBase64(String profileImageBase64) {
         this.profileImageBase64 = profileImageBase64;
+    }
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 
     @PropertyName("isConfirmed")

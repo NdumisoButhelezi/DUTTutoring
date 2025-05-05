@@ -1,26 +1,54 @@
-<FrameLayout
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/student_dashboard_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    tools:context=".StudentDashboardActivity">
 
+    <!-- Guideline at 50% of the screen height -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.5"
+        android:orientation="horizontal"/>
+
+    <!-- CardStackView for displaying tutor cards placed in the lower half of the screen -->
     <com.yuyakaido.android.cardstackview.CardStackView
         android:id="@+id/cardStackView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        app:layout_constraintTop_toBottomOf="@id/guidelineCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- FloatingActionButton for accepted bookings placed at the guideline (halfway) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAcceptedBookings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
-        android:contentDescription="Accepted Bookings"
-        app:srcCompat="@android:drawable/ic_menu_agenda"
-        app:tint="@android:color/white"/>
-</FrameLayout>
+        android:layout_margin="16dp"
+        android:contentDescription="Accepted bookings"
+        app:srcCompat="@drawable/ic_session"
+        app:layout_constraintTop_toTopOf="@id/guidelineCenter"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- You can add more floating buttons if needed by positioning them relative to the guideline -->
+    <!-- For example:
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/anotherFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/another_fab_desc"
+        app:srcCompat="@drawable/ic_another"
+        app:layout_constraintTop_toTopOf="@id/guidelineCenter"
+        app:layout_constraintStart_toStartOf="parent" />
+    -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

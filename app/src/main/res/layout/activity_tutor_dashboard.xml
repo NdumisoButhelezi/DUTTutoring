@@ -1,91 +1,89 @@
-<ScrollView
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <!-- AppBar with Material Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:divider="?android:attr/dividerHorizontal"
-        android:showDividers="middle">
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pending Bookings"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:paddingTop="12dp"
-            android:paddingBottom="4dp" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Tutor Dashboard"
+            app:titleTextColor="@android:color/white"/>
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <ListView
-            android:id="@+id/pendingListView"
+    <!-- Main content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:minHeight="48dp"
-            android:layout_marginBottom="16dp"
-            android:nestedScrollingEnabled="true" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancelled Bookings"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:paddingTop="12dp"
-            android:paddingBottom="4dp" />
+            <!-- Spinner for booking statuses -->
+            <Spinner
+                android:id="@+id/bookingStatusSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:spinnerMode="dropdown"
+                android:background="@drawable/spinner_background"/>
 
-        <ListView
-            android:id="@+id/cancelledListView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:minHeight="48dp"
-            android:layout_marginBottom="16dp"
-            android:nestedScrollingEnabled="true" />
+            <!-- Refresh button -->
+            <ImageButton
+                android:id="@+id/refreshButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Refresh bookings"
+                android:src="@drawable/ic_refresh"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Waiting for Payment"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:paddingTop="12dp"
-            android:paddingBottom="4dp" />
+            <!-- ListView for displaying bookings -->
+            <ListView
+                android:id="@+id/bookingsListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="1dp"/>
 
-        <ListView
-            android:id="@+id/waitingPaymentListView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:minHeight="48dp"
-            android:layout_marginBottom="16dp"
-            android:nestedScrollingEnabled="true" />
+            <!-- Horizontal layout for session & leaderboard buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Paid Bookings"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:paddingTop="12dp"
-            android:paddingBottom="4dp" />
+                <ImageButton
+                    android:id="@+id/sessionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Start session/upload resources"
+                    android:src="@drawable/ic_session"/>
 
-        <ListView
-            android:id="@+id/paidListView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="1dp"
-            android:minHeight="48dp"
-            android:layout_marginBottom="16dp"
-            android:nestedScrollingEnabled="true" />
-    </LinearLayout>
-</ScrollView>
+                <ImageButton
+                    android:id="@+id/leaderboardButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="View Tutor Leaderboard"
+                    android:src="@drawable/ic_leaderboard"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

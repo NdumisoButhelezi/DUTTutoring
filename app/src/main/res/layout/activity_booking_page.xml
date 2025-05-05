@@ -1,8 +1,7 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,43 +9,41 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Date Picker -->
         <DatePicker
             android:id="@+id/datePicker"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:calendarViewShown="true"/>
+            android:calendarViewShown="true" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Time:" />
-
+        <!-- Start Time Picker -->
         <TimePicker
             android:id="@+id/startTimePicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:timePickerMode="spinner"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="End Time:" />
-
-        <TimePicker
-            android:id="@+id/endTimePicker"
-            android:layout_width="102dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:timePickerMode="spinner" />
 
+        <!-- End Time Picker -->
+        <TimePicker
+            android:id="@+id/endTimePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:timePickerMode="spinner" />
+
+        <!-- Module Spinner -->
         <Spinner
             android:id="@+id/moduleSpinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
 
+        <!-- Book Button -->
         <Button
             android:id="@+id/bookButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Book Session" />
+            android:text="Book Session"
+            android:layout_marginTop="16dp" />
+
     </LinearLayout>
 </ScrollView>

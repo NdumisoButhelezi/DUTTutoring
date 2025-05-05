@@ -1,5 +1,6 @@
 package com.example.dutpeertutoring;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -82,6 +83,7 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
                 });
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCardSwiped(Direction direction) {
         if (tutorList.isEmpty()) return;

@@ -1,20 +1,19 @@
 package com.example.dutpeertutoring;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,23 +24,44 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
     private List<Booking> waitingPaymentBookings;
     private FirebaseFirestore firestore;
     private String studentId;
+    private Button resourceButton; // Button to access the resources page
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accepted_bookings);
 
+        // Set up toolbar with back button
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Accepted Bookings");
+        }
+
+        // Initialize RecyclerView and adapter for bookings
         bookingsRecycler = findViewById(R.id.bookingsRecycler);
         bookingsRecycler.setLayoutManager(new LinearLayoutManager(this));
-
         waitingPaymentBookings = new ArrayList<>();
         adapter = new StudentBookingsAdapter(waitingPaymentBookings, this);
         bookingsRecycler.setAdapter(adapter);
 
+        // Initialize Firebase Firestore and student id
         firestore = FirebaseFirestore.getInstance();
         studentId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        // Fetch accepted bookings from Firestore
         fetchAcceptedBookings();
+
+        // Find the resources button in the layout and set its click listener
+        resourceButton = findViewById(R.id.resourceButton);
+        resourceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Navigate to the StudentResourcesActivity
+                startActivity(new Intent(AcceptedBookingsActivity.this, StudentResourcesActivity.class));
+            }
+        });
     }
 
     private void fetchAcceptedBookings() {
@@ -58,12 +78,13 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
                     }
                     adapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch bookings: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to fetch bookings: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     @Override
     public void onPay(Booking booking) {
-        new AlertDialog.Builder(this)
+        new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Simulate Payment")
                 .setMessage("Choose payment result for this booking:")
                 .setPositiveButton("Valid Payment", (dialog, which) -> processPayment(booking, true))
@@ -81,9 +102,21 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
                 .update("status", "Approved:Paid", "paid", true)
                 .addOnSuccessListener(aVoid -> {
                     Snackbar.make(bookingsRecycler, "Payment successful!", Snackbar.LENGTH_LONG).show();
+                    // Redirect to the resources page after successful payment.
+                    startActivity(new Intent(AcceptedBookingsActivity.this, StudentResourcesActivity.class));
                     fetchAcceptedBookings();
-                    // Optional: Also update Tutor dashboard in real-time if using listeners
                 })
-                .addOnFailureListener(e -> Snackbar.make(bookingsRecycler, "Payment update failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show());
+                .addOnFailureListener(e ->
+                        Snackbar.make(bookingsRecycler, "Payment update failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            startActivity(new Intent(this, StudentDashboardActivity.class));
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

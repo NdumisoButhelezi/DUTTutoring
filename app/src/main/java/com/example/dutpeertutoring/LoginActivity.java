@@ -11,10 +11,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -91,17 +89,18 @@ public class LoginActivity extends AppCompatActivity {
 
                             String role = documentSnapshot.getString("role");
                             Boolean profileComplete = documentSnapshot.getBoolean("profileComplete");
-                            Boolean isConfirmed = documentSnapshot.getBoolean("isConfirmed");
+                            // Instead of using "isConfirmed", we now check the "approved" field
+                            Boolean approved = documentSnapshot.getBoolean("approved");
 
                             if (role != null) {
                                 Intent intent;
                                 switch (role) {
                                     case "Tutor":
-                                        if (Boolean.TRUE.equals(isConfirmed)) {
+                                        if (Boolean.TRUE.equals(approved)) {
                                             if (Boolean.TRUE.equals(profileComplete)) {
                                                 intent = new Intent(LoginActivity.this, TutorDashboardActivity.class);
                                             } else {
-                                                intent = new Intent(LoginActivity.this, TutorProfileSetupActivity.class);
+                                                intent = new Intent(LoginActivity.this, TutorDashboardActivity.class);
                                             }
                                             startActivity(intent);
                                             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -112,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                                         }
                                         break;
                                     case "Admin":
-                                        // Skip isConfirmed and profileComplete checks for Admin
+                                        // Skip approval and profileComplete checks for Admin
                                         intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
                                         startActivity(intent);
                                         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -146,7 +145,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void showError(EditText input, String message) {
         input.setError(message);
