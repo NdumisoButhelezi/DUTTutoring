@@ -20,6 +20,7 @@ public class Tutor {
     private String profileImageBase64;
     private String status;
     private double rating;
+    private float averageRating;
 
     // Default constructor (required for Firestore)
     public Tutor() {}
@@ -46,6 +47,11 @@ public class Tutor {
     }
     public double getRating() {
         return rating;
+    }
+
+    public Tutor(String id, float averageRating) {
+        this.id = id;
+        this.averageRating = averageRating;
     }
 
 
@@ -128,5 +134,9 @@ public class Tutor {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public float getAverageRating() {
+        return averageRating;
     }
 }

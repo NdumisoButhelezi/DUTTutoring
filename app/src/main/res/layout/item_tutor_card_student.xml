@@ -1,46 +1,71 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_margin="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp"
+    app:cardBackgroundColor="@color/md_theme_surface">
 
-    <!-- Profile Image -->
-    <ImageView
-        android:id="@+id/tutorProfileImageView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/default_profile_image" />
-
-    <!-- Tutor Name -->
-    <TextView
-        android:id="@+id/tutorNameTextView"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Tutor Name"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp" />
+        android:padding="16dp">
 
-    <!-- Tutor Modules -->
-    <TextView
-        android:id="@+id/tutorModulesTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Modules: Example Module"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp" />
+        <!-- Profile Image -->
+        <ImageView
+            android:id="@+id/tutorProfileImageView"
+            android:layout_width="361dp"
+            android:layout_height="362dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_profile_image"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Tutor Status -->
-    <TextView
-        android:id="@+id/tutorStatusTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Status: Available"
-        android:textSize="14sp"
-        android:layout_marginBottom="8dp" />
-</LinearLayout>
+        <!-- Tutor Name -->
+
+        <!-- Tutor Modules -->
+        <TextView
+            android:id="@+id/tutorNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Tutor Name"
+            android:textColor="@color/md_theme_onSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tutorProfileImageView" />
+
+        <TextView
+            android:id="@+id/tutorModulesTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Modules: Example Module"
+            android:textSize="14sp"
+            android:textColor="@color/md_theme_onSurface"
+            app:layout_constraintTop_toBottomOf="@id/tutorNameTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Tutor Status -->
+        <TextView
+            android:id="@+id/tutorStatusTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Status: Available"
+            android:textSize="14sp"
+            android:textColor="@color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/tutorModulesTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

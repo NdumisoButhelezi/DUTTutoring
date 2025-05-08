@@ -16,7 +16,19 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="Tutor Dashboard"
-            app:titleTextColor="@android:color/white"/>
+            app:titleTextColor="@android:color/black"/>
+
+        <!-- Logout Button -->
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Logout"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/md_theme_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Main content -->

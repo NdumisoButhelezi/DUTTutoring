@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Tutor ID -->
+    <TextView
+        android:id="@+id/tvTutorId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tutor ID"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Average Rating -->
+    <TextView
+        android:id="@+id/tvAverageRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Average Rating"
+        android:textSize="14sp" />
+
+</LinearLayout>

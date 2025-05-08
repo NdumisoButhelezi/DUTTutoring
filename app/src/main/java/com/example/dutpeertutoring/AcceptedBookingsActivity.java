@@ -4,12 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,7 +24,6 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
     private List<Booking> waitingPaymentBookings;
     private FirebaseFirestore firestore;
     private String studentId;
-    private Button resourceButton; // Button to access the resources page
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +33,7 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
         // Set up toolbar with back button
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Accepted Bookings");
         }
@@ -53,14 +52,11 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
         // Fetch accepted bookings from Firestore
         fetchAcceptedBookings();
 
-        // Find the resources button in the layout and set its click listener
-        resourceButton = findViewById(R.id.resourceButton);
-        resourceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Navigate to the StudentResourcesActivity
-                startActivity(new Intent(AcceptedBookingsActivity.this, StudentResourcesActivity.class));
-            }
+        // Floating Action Button to access resources
+        FloatingActionButton fab = findViewById(R.id.fabResources);
+        fab.setOnClickListener(view -> {
+            // Navigate to the StudentResourcesActivity
+            startActivity(new Intent(AcceptedBookingsActivity.this, StudentResourcesActivity.class));
         });
     }
 
@@ -113,6 +109,7 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            // Navigate back to Dashboard
             startActivity(new Intent(this, StudentDashboardActivity.class));
             finish();
             return true;

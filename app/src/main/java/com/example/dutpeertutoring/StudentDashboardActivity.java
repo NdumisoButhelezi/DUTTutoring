@@ -1,20 +1,19 @@
 package com.example.dutpeertutoring;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -31,25 +30,49 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
     private FirebaseFirestore firestore;
     private List<Tutor> tutorList;
     private FloatingActionButton fabAcceptedBookings;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_dashboard);
 
+        // Set up the Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Initialize CardStackView and Firebase
         cardStackView = findViewById(R.id.cardStackView);
         cardStackLayoutManager = new CardStackLayoutManager(this, this);
         cardStackView.setLayoutManager(cardStackLayoutManager);
-
+        // Initialize Firebase Auth
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         tutorList = new ArrayList<>();
         cardStackTutorAdapter = new CardStackTutorAdapter(tutorList, this);
         cardStackView.setAdapter(cardStackTutorAdapter);
-
+        // Find the Logout Button
+        Button btnLogout = findViewById(R.id.btnLogout);
+        // FloatingActionButton for accepted bookings
         fabAcceptedBookings = findViewById(R.id.fabAcceptedBookings);
         fabAcceptedBookings.setOnClickListener(v -> {
             Intent intent = new Intent(this, AcceptedBookingsActivity.class);
             startActivity(intent);
+        });
+        // Floating Action Button for Ratings
+        FloatingActionButton fabRatings = findViewById(R.id.fabRatings);
+        fabRatings.setOnClickListener(v -> {
+            Intent intent = new Intent(this, StudentResourcesActivity.class);
+            startActivity(intent);
+        });
+
+        // Set Logout Button Click Listener
+        btnLogout.setOnClickListener(v -> {
+            auth.signOut(); // Log the user out
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish(); // Close the activity
         });
 
         fetchTutors();
@@ -62,7 +85,7 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     tutorList.clear();
-                    for (DocumentSnapshot tutorDoc : queryDocumentSnapshots.getDocuments()) { // Use getDocuments()
+                    for (DocumentSnapshot tutorDoc : queryDocumentSnapshots.getDocuments()) {
                         Tutor tutor = new Tutor();
                         tutor.setId(tutorDoc.getId());
                         tutor.setName(tutorDoc.getString("name"));
@@ -79,11 +102,10 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
                     cardStackTutorAdapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show(); // Use getMessage()
+                    Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCardSwiped(Direction direction) {
         if (tutorList.isEmpty()) return;
@@ -102,6 +124,19 @@ public class StudentDashboardActivity extends AppCompatActivity implements CardS
 
         tutorList.remove(swipedTutor);
         cardStackTutorAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_logout) {
+            auth.signOut();
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override public void onCardDragging(Direction direction, float ratio) {}

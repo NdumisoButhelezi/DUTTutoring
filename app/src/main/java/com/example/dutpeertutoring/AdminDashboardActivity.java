@@ -1,10 +1,14 @@
 package com.example.dutpeertutoring;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
@@ -25,11 +29,12 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
         // Initialize RecyclerViews
         unapprovedTutorsRecyclerView = findViewById(R.id.unapprovedTutorsRecyclerView);
         approvedTutorsRecyclerView = findViewById(R.id.approvedTutorsRecyclerView);
-
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         unapprovedTutorsList = new ArrayList<>();
         approvedTutorsList = new ArrayList<>();
         firestore = FirebaseFirestore.getInstance();
-
+// Find the Logout Button
+        Button btnLogout = findViewById(R.id.btnLogout);
         // Set up RecyclerViews
         unapprovedTutorAdapter = new TutorAdapter(unapprovedTutorsList, this, this);
         approvedTutorAdapter = new TutorAdapter(approvedTutorsList, this, this);
@@ -39,7 +44,14 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
 
         approvedTutorsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         approvedTutorsRecyclerView.setAdapter(approvedTutorAdapter);
-
+        // Set Logout Button Click Listener
+        btnLogout.setOnClickListener(v -> {
+            auth.signOut(); // Log the user out
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish(); // Close the activity
+        });
         // Fetch tutors
         fetchTutors();
     }

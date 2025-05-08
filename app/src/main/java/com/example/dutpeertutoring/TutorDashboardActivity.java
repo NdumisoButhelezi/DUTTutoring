@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -44,13 +45,20 @@ public class TutorDashboardActivity extends AppCompatActivity {
         refreshButton = findViewById(R.id.refreshButton);
         sessionButton = findViewById(R.id.sessionButton); // new button to start session/upload resources
         leaderboardButton = findViewById(R.id.leaderboardButton); // new button to view tutor leaderboard
-
+        Button btnLogout = findViewById(R.id.btnLogout);
         // Setup Spinner adapter for booking statuses
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, bookingStatuses);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         bookingStatusSpinner.setAdapter(spinnerAdapter);
-
+// Set Logout Button Click Listener
+        btnLogout.setOnClickListener(v -> {
+            auth.signOut(); // Log the user out
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish(); // Close the activity
+        });
         // Setup booking list and adapter (using an existing BookingAdapter)
         bookingList = new ArrayList<>();
         bookingAdapter = new BookingAdapter(this, bookingList, new BookingAdapter.OnBookingActionListener() {
