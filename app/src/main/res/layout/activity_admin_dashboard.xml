@@ -6,6 +6,14 @@
     android:padding="16dp"
     android:background="@android:color/white">
 
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <!-- Logout Button -->
     <Button
         android:id="@+id/btnLogout"
@@ -17,6 +25,47 @@
         android:backgroundTint="@color/colorPrimary"
         android:textColor="@android:color/white"
         android:elevation="4dp" />
+
+    <!-- Grid Layout for Additional Buttons -->
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/gridLayoutButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:columnCount="2"
+        app:rowCount="1"
+        android:padding="8dp"
+        android:layout_marginBottom="16dp">
+
+        <!-- Analytics Button -->
+        <Button
+            android:id="@+id/btnAnalytics"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"
+            android:layout_margin="8dp"
+            android:text="Analytics"
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
+            android:drawableTop="@drawable/ic_analytics"
+            android:gravity="center"
+            android:padding="16dp" />
+
+        <!-- Chatbot Button -->
+        <Button
+            android:id="@+id/btnChatbot"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"
+            android:layout_margin="8dp"
+            android:text="Chatbot"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@android:color/white"
+            android:drawableTop="@drawable/ic_chatbot"
+            android:gravity="center"
+            android:padding="16dp" />
+    </androidx.gridlayout.widget.GridLayout>
 
     <!-- Unapproved Tutors Section -->
     <TextView

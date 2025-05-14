@@ -1,4 +1,5 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -12,28 +13,78 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/MaterialAlertDialog.MaterialComponents.Title.Icon"
             app:title="Accepted Bookings" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main content -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/bookingsRecycler"
+    <!-- Main content in a NestedScrollView -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="72dp"
-        android:clipToPadding="false"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:padding="16dp">
 
-    <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabResources"
-        android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Accepted Bookings Section -->
+            <TextView
+                android:id="@+id/acceptedLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accepted Bookings"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:paddingBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/acceptedBookingsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false" />
+
+            <!-- History Section -->
+            <TextView
+                android:id="@+id/historyLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="History"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/historyBookingsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Floating Action Buttons aligned at the bottom -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:contentDescription="Access Resources"
-        android:src="@drawable/ic_session"
-    app:layout_anchor="@id/bookingsRecycler"
-    app:layout_anchorGravity="bottom|end" />
+        android:orientation="horizontal"
+        android:gravity="bottom|center"
+        android:layout_gravity="bottom"
+        android:padding="16dp">
+
+        <!-- Floating Action Button for Resources -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabResources"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="Access Resources"
+            android:src="@drawable/ic_session" />
+
+        <!-- Floating Action Button for Chat -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Go to Chat"
+            android:src="@drawable/ic_chat" />
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

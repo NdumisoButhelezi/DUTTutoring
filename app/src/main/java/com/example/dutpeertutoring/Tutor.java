@@ -18,6 +18,7 @@ public class Tutor {
     private String email;
     private Bitmap profileImageBitmap;
     private String profileImageBase64;
+    private String academicRecordBase64;
     private String status;
     private double rating;
     private float averageRating;
@@ -40,6 +41,10 @@ public class Tutor {
 
     public void setName(String name) {
         this.name = name;
+    }
+    // Getters and setters
+    public String getAcademicRecordBase64() {
+        return academicRecordBase64;
     }
 
     public String getSurname() {
@@ -114,6 +119,11 @@ public class Tutor {
     public void setProfileImageBase64(String profileImageBase64) {
         this.profileImageBase64 = profileImageBase64;
     }
+
+    public void setAcademicRecordBase64(String academicRecordBase64) {
+        this.academicRecordBase64 = academicRecordBase64;
+    }
+
     public void setRating(double rating) {
         this.rating = rating;
     }

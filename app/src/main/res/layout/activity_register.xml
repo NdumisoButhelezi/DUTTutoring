@@ -66,19 +66,39 @@
                 android:textColor="#666666"
                 android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/password"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/edit_text_background"
-                android:hint="Choose a secure password"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="#333333"
-                android:textColorHint="#AAAAAA"
-                android:textSize="16sp" />
+                android:layout_marginBottom="16dp">
+
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/edit_text_background"
+                    android:hint="Choose a secure password"
+                    android:inputType="textPassword"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:textColor="#333333"
+                    android:textColorHint="#AAAAAA"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toStartOf="@id/passwordToggle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/passwordToggle"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:background="?attr/selectableItemBackground"
+                    android:contentDescription="Toggle Password Visibility"
+                    android:src="@drawable/ic_visibility_off"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:layout_width="wrap_content"

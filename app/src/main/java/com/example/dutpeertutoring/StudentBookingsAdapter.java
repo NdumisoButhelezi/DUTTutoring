@@ -19,10 +19,12 @@ public class StudentBookingsAdapter extends RecyclerView.Adapter<StudentBookings
 
     private final List<Booking> bookings;
     private final OnBookingPayListener listener;
+    private final boolean showPayButton; // Flag to indicate if "Pay" button should be shown
 
-    public StudentBookingsAdapter(List<Booking> bookings, OnBookingPayListener listener) {
+    public StudentBookingsAdapter(List<Booking> bookings, OnBookingPayListener listener, boolean showPayButton) {
         this.bookings = bookings;
         this.listener = listener;
+        this.showPayButton = showPayButton;
     }
 
     @NonNull
@@ -39,7 +41,8 @@ public class StudentBookingsAdapter extends RecyclerView.Adapter<StudentBookings
         holder.date.setText("Date: " + b.getDate());
         holder.time.setText("Time: " + b.getStartTime() + " - " + b.getEndTime());
         holder.status.setText("Status: " + b.getStatus());
-        if ("Approved:WaitingPayment".equals(b.getStatus()) && !b.isPaid()) {
+
+        if (showPayButton && "Approved:WaitingPayment".equals(b.getStatus()) && !b.isPaid()) {
             holder.payButton.setVisibility(View.VISIBLE);
             holder.payButton.setOnClickListener(v -> listener.onPay(b));
         } else {

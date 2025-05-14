@@ -45,7 +45,7 @@ public class StudentBookingsActivity extends AppCompatActivity
         bookingsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         allBookings = new ArrayList<>();
-        adapter = new StudentBookingsAdapter(filteredBookings, this);
+        adapter = new StudentBookingsAdapter(filteredBookings, this, true /* Default to showing the pay button */);
         bookingsRecycler.setAdapter(adapter);
 
         firestore = FirebaseFirestore.getInstance();
@@ -83,22 +83,34 @@ public class StudentBookingsActivity extends AppCompatActivity
     private void filterBookings() {
         int selectedTab = tabLayout.getSelectedTabPosition();
         filteredBookings.clear();
+
+        boolean showPayButton = false;
         for (Booking b : allBookings) {
             switch (selectedTab) {
                 case TAB_PENDING:
-                    if ("Pending".equals(b.getStatus()) || "Approved:WaitingPayment".equals(b.getStatus()))
+                    if ("Pending".equals(b.getStatus()) || "Approved:WaitingPayment".equals(b.getStatus())) {
                         filteredBookings.add(b);
+                        showPayButton = true; // Show pay button on this tab
+                    }
                     break;
                 case TAB_CONFIRMED:
-                    if ("Approved:Paid".equals(b.getStatus()))
+                    if ("Approved:Paid".equals(b.getStatus())) {
                         filteredBookings.add(b);
+                        showPayButton = false; // No pay button for confirmed bookings
+                    }
                     break;
                 case TAB_CANCELLED:
-                    if ("Cancelled".equals(b.getStatus()))
+                    if ("Cancelled".equals(b.getStatus())) {
                         filteredBookings.add(b);
+                        showPayButton = false; // No pay button for cancelled bookings
+                    }
                     break;
             }
         }
+
+        // Update the adapter with the new value for showPayButton
+        adapter = new StudentBookingsAdapter(filteredBookings, this, showPayButton);
+        bookingsRecycler.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
 

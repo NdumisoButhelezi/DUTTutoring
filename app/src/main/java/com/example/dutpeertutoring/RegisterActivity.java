@@ -2,6 +2,7 @@ package com.example.dutpeertutoring;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
@@ -9,6 +10,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
     private CardView registerCard;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
+    private ImageButton passwordToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,19 @@ public class RegisterActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         loginLink = findViewById(R.id.loginLink);
         registerCard = findViewById(R.id.registerCard);
+        passwordToggle = findViewById(R.id.passwordToggle);
+
+        // Toggle password visibility
+        passwordToggle.setOnClickListener(v -> {
+            if (passwordInput.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                passwordToggle.setImageResource(R.drawable.ic_visibility);
+            } else {
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                passwordToggle.setImageResource(R.drawable.ic_visibility_off);
+            }
+            passwordInput.setSelection(passwordInput.getText().length());
+        });
 
         // Apply entrance animation
         Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
@@ -114,17 +130,15 @@ public class RegisterActivity extends AppCompatActivity {
                 Map<String, Object> user = new HashMap<>();
                 user.put("email", email);
                 user.put("role", role);
-                user.put("isConfirmed", false); // Default to unconfirmed
-                user.put("profileComplete", false); // Default to incomplete
+                user.put("isConfirmed", false);
+                user.put("profileComplete", false);
 
                 firestore.collection("users").document(userId).set(user)
                         .addOnSuccessListener(aVoid -> {
                             progressBar.setVisibility(View.GONE);
 
-                            // Show success animation and message
                             Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
 
-                            // Redirect based on role
                             Intent intent;
                             switch (role) {
                                 case "Tutor":
@@ -161,7 +175,6 @@ public class RegisterActivity extends AppCompatActivity {
     private void showError(EditText input, String message) {
         input.setError(message);
         input.requestFocus();
-        // Shake animation for error
         Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
         input.startAnimation(shake);
     }

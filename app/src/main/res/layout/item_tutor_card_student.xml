@@ -18,8 +18,8 @@
         <!-- Profile Image -->
         <ImageView
             android:id="@+id/tutorProfileImageView"
-            android:layout_width="361dp"
-            android:layout_height="362dp"
+            android:layout_width="345dp"
+            android:layout_height="274dp"
             android:scaleType="centerCrop"
             android:src="@drawable/default_profile_image"
             app:layout_constraintDimensionRatio="1:1"

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +27,13 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
+        // Set up the Toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Admin Dashboard");
+        }
+
         // Initialize RecyclerViews
         unapprovedTutorsRecyclerView = findViewById(R.id.unapprovedTutorsRecyclerView);
         approvedTutorsRecyclerView = findViewById(R.id.approvedTutorsRecyclerView);
@@ -33,8 +41,11 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
         unapprovedTutorsList = new ArrayList<>();
         approvedTutorsList = new ArrayList<>();
         firestore = FirebaseFirestore.getInstance();
-// Find the Logout Button
+
+        // Find Buttons
         Button btnLogout = findViewById(R.id.btnLogout);
+        Button btnAnalytics = findViewById(R.id.btnAnalytics);
+
         // Set up RecyclerViews
         unapprovedTutorAdapter = new TutorAdapter(unapprovedTutorsList, this, this);
         approvedTutorAdapter = new TutorAdapter(approvedTutorsList, this, this);
@@ -44,6 +55,7 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
 
         approvedTutorsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         approvedTutorsRecyclerView.setAdapter(approvedTutorAdapter);
+
         // Set Logout Button Click Listener
         btnLogout.setOnClickListener(v -> {
             auth.signOut(); // Log the user out
@@ -52,6 +64,13 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
             startActivity(intent);
             finish(); // Close the activity
         });
+
+        // Set Click Listener for Analytics Navigation
+        btnAnalytics.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminDashboardActivity.this, AdminAnalyticsActivity.class);
+            startActivity(intent);
+        });
+
         // Fetch tutors
         fetchTutors();
     }
@@ -95,7 +114,6 @@ public class AdminDashboardActivity extends AppCompatActivity implements TutorAd
                     Toast.makeText(this, "Approved: " + tutor.getName(), Toast.LENGTH_SHORT).show();
                     unapprovedTutorsList.remove(tutor);
                     tutor.setApproved(true);
-                    // Ensure duplicate approved tutor is not added
                     if (!approvedTutorsList.contains(tutor)) {
                         approvedTutorsList.add(tutor);
                     }

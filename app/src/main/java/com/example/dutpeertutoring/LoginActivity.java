@@ -2,17 +2,21 @@ package com.example.dutpeertutoring;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -25,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private CardView loginCard;
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
+    private ImageButton passwordToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +46,19 @@ public class LoginActivity extends AppCompatActivity {
         registerLink = findViewById(R.id.registerLink);
         progressBar = findViewById(R.id.progressBar);
         loginCard = findViewById(R.id.loginCard);
+        passwordToggle = findViewById(R.id.passwordToggle);
+
+        // Toggle password visibility
+        passwordToggle.setOnClickListener(v -> {
+            if (passwordInput.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                passwordToggle.setImageResource(R.drawable.ic_visibility);
+            } else {
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                passwordToggle.setImageResource(R.drawable.ic_visibility_off);
+            }
+            passwordInput.setSelection(passwordInput.getText().length());
+        });
 
         // Apply entrance animation
         Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
@@ -89,7 +107,6 @@ public class LoginActivity extends AppCompatActivity {
 
                             String role = documentSnapshot.getString("role");
                             Boolean profileComplete = documentSnapshot.getBoolean("profileComplete");
-                            // Instead of using "isConfirmed", we now check the "approved" field
                             Boolean approved = documentSnapshot.getBoolean("approved");
 
                             if (role != null) {
@@ -111,7 +128,6 @@ public class LoginActivity extends AppCompatActivity {
                                         }
                                         break;
                                     case "Admin":
-                                        // Skip approval and profileComplete checks for Admin
                                         intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
                                         startActivity(intent);
                                         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

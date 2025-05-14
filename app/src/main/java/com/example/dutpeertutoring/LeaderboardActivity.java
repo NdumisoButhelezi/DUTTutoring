@@ -1,5 +1,6 @@
 package com.example.dutpeertutoring;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -14,19 +15,20 @@ import java.util.List;
 import java.util.Map;
 
 public class LeaderboardActivity extends AppCompatActivity {
-    private RecyclerView recyclerViewLeaderboard;
+    private RecyclerView leaderboardRecyclerView; // Updated variable name
     private LeaderboardAdapter leaderboardAdapter;
     private FirebaseFirestore firestore;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
 
-        recyclerViewLeaderboard = findViewById(R.id.recyclerViewLeaderboard);
-        recyclerViewLeaderboard.setLayoutManager(new LinearLayoutManager(this));
+        leaderboardRecyclerView = findViewById(R.id.leaderboardRecyclerView); // Updated to match XML ID
+        leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         leaderboardAdapter = new LeaderboardAdapter(new ArrayList<>());
-        recyclerViewLeaderboard.setAdapter(leaderboardAdapter);
+        leaderboardRecyclerView.setAdapter(leaderboardAdapter);
 
         firestore = FirebaseFirestore.getInstance();
         fetchTutorRatings();

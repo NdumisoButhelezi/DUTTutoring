@@ -53,17 +53,24 @@ public class TutorAdapter extends RecyclerView.Adapter<TutorAdapter.TutorViewHol
             holder.modulesTextView.setText("Modules: No modules available");
         }
 
-        // Load the profile image using Glide
-        String base64Image = tutor.getProfileImageBase64();
-        if (base64Image != null && !base64Image.isEmpty()) {
-            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+        // Load the academic record image using Glide
+        String base64AcademicRecord = tutor.getAcademicRecordBase64(); // New field for academic record
+        if (base64AcademicRecord != null && !base64AcademicRecord.isEmpty()) {
+            byte[] decodedBytes = Base64.decode(base64AcademicRecord, Base64.DEFAULT);
             Glide.with(context)
                     .asBitmap()
                     .load(decodedBytes)
                     .placeholder(R.drawable.default_profile_image)
-                    .into(holder.profileImageView);
+                    .into(holder.profileImageView); // Using profileImageView to display academic record
         } else {
             holder.profileImageView.setImageResource(R.drawable.default_profile_image);
+        }
+
+        // Hide the "Approve" button if the tutor is already approved
+        if (Boolean.TRUE.equals(tutor.isApproved())) {
+            holder.approveButton.setVisibility(View.GONE);
+        } else {
+            holder.approveButton.setVisibility(View.VISIBLE);
         }
 
         // Set click listeners for buttons

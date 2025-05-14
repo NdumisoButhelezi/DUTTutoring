@@ -13,9 +13,8 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/accent"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-        tools:ignore="MissingConstraints">
+        android:background="@color/colorAccent"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -23,18 +22,19 @@
             android:layout_height="?attr/actionBarSize"
             android:title="Student Dashboard"
             android:titleTextColor="@android:color/white" />
-        <!-- Logout Button -->
-        <Button
-            android:id="@+id/btnLogout"
+
+        <!-- Logout ImageButton -->
+        <ImageButton
+            android:id="@+id/logoutButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginEnd="16dp"
             android:layout_marginTop="8dp"
-            android:text="Logout"
-            android:textColor="@android:color/white"
-            android:backgroundTint="@color/md_theme_primary" />
-
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Logout"
+            android:src="@drawable/ic_logout"
+            android:tint="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Description Text -->
@@ -42,12 +42,23 @@
         android:id="@+id/descriptionTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Swipe through tutors to book or skip. Tap the button below to view your accepted bookings."
+        android:text="Swipe left to reject tutor and right to initiate the booking process."
         android:textSize="16sp"
-        android:textColor="@color/md_theme_onSurface"
+        android:textColor="@color/accent"
         android:padding="16dp"
         android:gravity="center_horizontal"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/descriptionTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -57,8 +68,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="16dp"
-        android:contentDescription="Swipe through available tutors to book or skip."
-        app:layout_constraintTop_toBottomOf="@id/descriptionTextView"
+        app:layout_constraintTop_toBottomOf="@id/progressBar"
         app:layout_constraintBottom_toTopOf="@id/fabAcceptedBookings"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

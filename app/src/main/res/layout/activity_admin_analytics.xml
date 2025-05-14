@@ -1,39 +1,63 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@android:color/white">
 
-    <TextView
-        android:id="@+id/totalTutorsText"
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Total Tutors: 0"
-        android:textSize="18sp"
-        android:padding="8dp" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <TextView
-        android:id="@+id/totalStudentsText"
+    <!-- Analytics Data Section -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Total Students: 0"
-        android:textSize="18sp"
-        android:padding="8dp" />
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/totalBookingsText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Total Bookings: 0"
-        android:textSize="18sp"
-        android:padding="8dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/averageRatingText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Average Rating: 0.0"
-        android:textSize="18sp"
-        android:padding="8dp" />
+            <TextView
+                android:id="@+id/totalTutorsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Tutors: 0"
+                android:textSize="18sp"
+                android:padding="8dp"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/totalStudentsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Students: 0"
+                android:textSize="18sp"
+                android:padding="8dp"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/totalBookingsText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Bookings: 0"
+                android:textSize="18sp"
+                android:padding="8dp"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/averageRatingText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Average Rating: 0.0"
+                android:textSize="18sp"
+                android:padding="8dp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

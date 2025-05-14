@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -19,27 +18,29 @@ import java.util.List;
 public class TutorLeaderboardActivity extends AppCompatActivity {
 
     private RecyclerView leaderboardRecyclerView;
-    private TutorLeaderboardAdapter adapter;
+    private TutorLeaderboardAdapter tutorAdapter;
     private List<Tutor> ratedTutors;
     private FirebaseFirestore firestore;
-    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tutor_leaderboard);
+        setContentView(R.layout.activity_leaderboard);
 
         leaderboardRecyclerView = findViewById(R.id.leaderboardRecyclerView);
         leaderboardRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         ratedTutors = new ArrayList<>();
-        adapter = new TutorLeaderboardAdapter(ratedTutors, this);
-        leaderboardRecyclerView.setAdapter(adapter);
+
+        tutorAdapter = new TutorLeaderboardAdapter(ratedTutors, this);
+        leaderboardRecyclerView.setAdapter(tutorAdapter);
 
         firestore = FirebaseFirestore.getInstance();
-        fetchRatedTutors();
+
+        // Fetch tutors by default
+        fetchTutors();
     }
 
-    private void fetchRatedTutors() {
+    private void fetchTutors() {
         firestore.collection("tutors")
                 .whereEqualTo("approved", true)
                 .orderBy("rating", Query.Direction.DESCENDING)
@@ -52,16 +53,15 @@ public class TutorLeaderboardActivity extends AppCompatActivity {
                         tutor.setId(doc.getId());
                         ratedTutors.add(tutor);
                     }
-                    adapter.notifyDataSetChanged();
+                    tutorAdapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(TutorLeaderboardActivity.this, "Failed to fetch rated tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch tutors: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_logout) {
-            auth.signOut();
+            FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
