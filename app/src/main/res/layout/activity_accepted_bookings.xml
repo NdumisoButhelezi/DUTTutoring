@@ -9,11 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="Accepted Bookings" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Main content in a NestedScrollView -->

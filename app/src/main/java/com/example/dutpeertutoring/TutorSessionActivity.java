@@ -1,26 +1,36 @@
 package com.example.dutpeertutoring;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class TutorSessionActivity extends AppCompatActivity {
 
     private static final int PICK_PDF_REQUEST = 1;
-    private MaterialButton btnSelectPdf, btnUploadPdf, btnSubmitRating;
+    private static final int STORAGE_PERMISSION_CODE = 100;
+
+    private MaterialButton btnSelectPdf, btnUploadPdf;
     private Uri selectedPdfUri;
     private FirebaseFirestore firestore;
     private FirebaseAuth auth;
@@ -36,9 +46,10 @@ public class TutorSessionActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
+        // Initialize UI components
+        tutorNameTextView = findViewById(R.id.tutorNameTextView);  // Initialize TextView
         btnSelectPdf = findViewById(R.id.btnSelectPdf);
         btnUploadPdf = findViewById(R.id.btnUploadPdf);
-    ;
 
         // Get current tutor's ID
         tutorId = auth.getCurrentUser().getUid();
@@ -46,17 +57,25 @@ public class TutorSessionActivity extends AppCompatActivity {
         // Fetch tutor's name and surname
         fetchTutorProfile();
 
-        // Set listeners
+        // Set listeners for buttons
         btnSelectPdf.setOnClickListener(view -> openFileChooser());
         btnUploadPdf.setOnClickListener(view -> {
             if (selectedPdfUri != null) {
-                uploadPdfToFirestore(selectedPdfUri);
+                try {
+                    uploadPdfToFirestore(selectedPdfUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(TutorSessionActivity.this, "Error reading PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(TutorSessionActivity.this, "Please select a PDF file first", Toast.LENGTH_SHORT).show();
             }
         });
 
-        btnSubmitRating.setOnClickListener(view -> submitRating());
+        // Request storage permissions if not granted
+        if (!checkStoragePermission()) {
+            requestStoragePermission();
+        }
     }
 
     private void fetchTutorProfile() {
@@ -67,7 +86,9 @@ public class TutorSessionActivity extends AppCompatActivity {
                         tutorName = documentSnapshot.getString("name");
                         tutorSurname = documentSnapshot.getString("surname");
                         String fullName = tutorName + " " + tutorSurname;
-                        tutorNameTextView.setText(fullName); // Display tutor's name
+                        if (tutorNameTextView != null) {  // Check if tutorNameTextView is not null
+                            tutorNameTextView.setText(fullName); // Display tutor's name
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -90,13 +111,37 @@ public class TutorSessionActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadPdfToFirestore(Uri pdfUri) {
-        try {
-            // Code to upload the PDF file as before
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error reading PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    private void uploadPdfToFirestore(Uri pdfUri) throws IOException {
+        // Read the file and convert it to Base64
+        byte[] pdfBytes = readPdfFromUri(pdfUri);
+        String encodedPdf = Base64.encodeToString(pdfBytes, Base64.DEFAULT);
+
+        // Upload PDF encoded data to Firestore
+        Map<String, Object> pdfData = new HashMap<>();
+        pdfData.put("pdfData", encodedPdf);
+        pdfData.put("tutorId", tutorId);
+        pdfData.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+
+        firestore.collection("resources")
+                .add(pdfData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "PDF uploaded successfully!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to upload PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private byte[] readPdfFromUri(Uri pdfUri) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (FileInputStream fileInputStream = new FileInputStream(pdfUri.getPath())) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fileInputStream.read(buffer)) > 0) {
+                byteArrayOutputStream.write(buffer, 0, length);
+            }
         }
+        return byteArrayOutputStream.toByteArray();
     }
 
     private void submitRating() {
@@ -124,5 +169,31 @@ public class TutorSessionActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to submit rating: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    // Check for storage permission
+    private boolean checkStoragePermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    // Request storage permission
+    private void requestStoragePermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                STORAGE_PERMISSION_CODE);
+    }
+
+    // Handle storage permission result
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission denied. Cannot upload or download PDFs.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
