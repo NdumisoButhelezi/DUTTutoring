@@ -1,235 +1,267 @@
 package com.example.dutpeertutoring;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.*;
+import com.google.firebase.firestore.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MessagingActivity extends AppCompatActivity {
 
-    private Spinner bookingSpinner;
     private RecyclerView messagesRecyclerView;
     private TextInputEditText messageInput;
     private MaterialButton sendButton;
     private LinearProgressIndicator loadingProgressBar;
     private MessageRecyclerAdapter messageAdapter;
-    private List<Message> messageList;
-    private FirebaseFirestore firestore;
-    private DatabaseReference messagesRef;    // <— this must be set before sending
-
-    private List<Booking> paidBookings;
+    private final List<Message> messageList = new ArrayList<>();
     private String currentUserId;
     private String selectedBookingId;
-    private String selectedTutorId;
+    private String selectedReceiverId;
+    private FirebaseFirestore firestore;
+    private DatabaseReference messagesRef;
 
-    private boolean firstBookingSelection = true;
+    // Spinner for both Tutors and Students
+    private Spinner bookingSpinner;
+    private ArrayAdapter<String> bookingAdapter;
+    private final List<BookingInfo> bookingList = new ArrayList<>();
+    private final List<String> bookingDisplayList = new ArrayList<>();
+
+    // Role
+    private String currentUserRole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messaging);
 
-        bookingSpinner       = findViewById(R.id.bookingSpinner);
+        // Initialize views
         messagesRecyclerView = findViewById(R.id.messagesRecyclerView);
-        messageInput         = findViewById(R.id.messageInput);
-        sendButton           = findViewById(R.id.sendButton);
-        loadingProgressBar   = findViewById(R.id.loadingProgressBar);
+        messageInput = findViewById(R.id.messageInput);
+        sendButton = findViewById(R.id.sendButton);
+        loadingProgressBar = findViewById(R.id.loadingProgressBar);
+        bookingSpinner = findViewById(R.id.bookingSpinner);
 
-        // disable until chat is ready
-        messageInput.setEnabled(false);
-        sendButton.setEnabled(false);
+        firestore = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            currentUserId = user.getUid();
+        } else {
+            Toast.makeText(this, "User not signed in", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        // RecyclerView setup
-        messagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        messageList    = new ArrayList<>();
-        currentUserId  = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // Get current user role from Firestore
+        firestore.collection("users").document(currentUserId).get().addOnSuccessListener(userDoc -> {
+            if (userDoc.exists()) {
+                currentUserRole = userDoc.getString("role");
+                if ("Tutor".equals(currentUserRole)) {
+                    setupBookingSpinnerForTutors();
+                } else if ("Student/Tutee".equals(currentUserRole)) {
+                    setupBookingSpinnerForStudents();
+                } else {
+                    Toast.makeText(this, "Unrecognized role. Contact support.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        });
+
         messageAdapter = new MessageRecyclerAdapter(messageList, currentUserId);
+        messagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messagesRecyclerView.setAdapter(messageAdapter);
 
-        // Firestore & booking list
-        firestore    = FirebaseFirestore.getInstance();
-        paidBookings = new ArrayList<>();
-        fetchPaidBookings();
-
+        // Send button listener
         sendButton.setOnClickListener(v -> sendMessage());
     }
 
-    private void fetchPaidBookings() {
-        loadingProgressBar.setVisibility(View.VISIBLE);
-
+    private void setupBookingSpinnerForTutors() {
+        // Query bookings where currentUserId == tutorId AND paid == true
         firestore.collection("bookings")
-                .whereEqualTo("studentId", currentUserId)
-                .whereEqualTo("status", "Approved:Paid")
+                .whereEqualTo("tutorId", currentUserId)
+                .whereEqualTo("paid", true)
                 .get()
-                .addOnSuccessListener(snaps -> {
-                    paidBookings.clear();
-                    List<String> titles = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : snaps) {
-                        Booking b = doc.toObject(Booking.class);
-                        b.setId(doc.getId());
-                        paidBookings.add(b);
-                        titles.add(b.getModule() + " (" + b.getDate() + ")");
-                    }
-
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                            this, android.R.layout.simple_spinner_item, titles
-                    );
-                    adapter.setDropDownViewResource(
-                            android.R.layout.simple_spinner_dropdown_item
-                    );
-                    bookingSpinner.setAdapter(adapter);
-
-                    bookingSpinner.setOnItemSelectedListener(
-                            new AdapterView.OnItemSelectedListener() {
-                                @Override
-                                public void onItemSelected(
-                                        AdapterView<?> parent, View view, int position, long id
-                                ) {
-                                    if (firstBookingSelection) {
-                                        firstBookingSelection = false;
-                                        return;
-                                    }
-                                    Booking sel = paidBookings.get(position);
-                                    selectedBookingId = sel.getId();
-                                    selectedTutorId  = sel.getTutorId();
-                                    loadMessages();
-                                }
-                                @Override public void onNothingSelected(AdapterView<?> parent) {}
-                            }
-                    );
-
-                    loadingProgressBar.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    loadingProgressBar.setVisibility(View.GONE);
-                    Toast.makeText(
-                            this,
-                            "Failed to load bookings.",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                });
+                .addOnSuccessListener(querySnapshots -> populateBookingSpinner(querySnapshots, "studentId", "module", "date"))
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch bookings: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void loadMessages() {
-        if (selectedBookingId == null) return;
+    private void setupBookingSpinnerForStudents() {
+        // Query bookings where currentUserId == studentId AND paid == true
+        firestore.collection("bookings")
+                .whereEqualTo("studentId", currentUserId)
+                .whereEqualTo("paid", true)
+                .get()
+                .addOnSuccessListener(querySnapshots -> populateBookingSpinner(querySnapshots, "tutorId", "module", "date"))
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to fetch bookings: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
 
-        loadingProgressBar.setVisibility(View.VISIBLE);
+    private void populateBookingSpinner(QuerySnapshot querySnapshots, String otherPartyIdField, String subjectField, String dateField) {
+        bookingList.clear();
+        bookingDisplayList.clear();
+        for (DocumentSnapshot doc : querySnapshots.getDocuments()) {
+            final String bookingId = doc.getId();
+            final String otherPartyId = doc.getString(otherPartyIdField);
+            final String subject = doc.getString(subjectField);
+            final String date = doc.getString(dateField);
+            if (otherPartyId == null || date == null) continue;
 
-        // 1) Build the reference for this booking's chat
-        DatabaseReference ref = FirebaseDatabase.getInstance()
-                .getReference("messages")
-                .child(selectedBookingId);
+            // Fetch name/email of the other party for display
+            firestore.collection("users").document(otherPartyId).get()
+                    .addOnSuccessListener(otherPartyDoc -> {
+                        String otherPartyName = "User";
+                        if (otherPartyDoc.exists() && otherPartyDoc.getString("email") != null) {
+                            otherPartyName = otherPartyDoc.getString("email");
+                        }
 
-        // 2) Save it to your field so sendMessage() can use it
-        messagesRef = ref;
+                        // Add booking info for Spinner
+                        BookingInfo info = new BookingInfo(bookingId, otherPartyId, otherPartyName, subject, date);
+                        bookingList.add(info);
+                        bookingDisplayList.add(otherPartyName + " (" + (subject != null ? subject : "No Subject") + ") - " + date);
 
-        // 3) (Optional) keep it synced & only fetch last 10
-        ref.keepSynced(true);
-        Query recent = ref.orderByChild("timestamp").limitToLast(10);
+                        // After all bookings are loaded, update the spinner
+                        if (bookingList.size() == bookingDisplayList.size()) {
+                            updateBookingSpinner();
+                        }
+                    });
+        }
 
-        // 4) Clear old UI
-        messageList.clear();
-        messageAdapter.notifyDataSetChanged();
+        if (bookingList.isEmpty()) {
+            Toast.makeText(this, "No paid bookings found.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-        // 5) Stream in each message
-        recent.addChildEventListener(new ChildEventListener() {
+    private void updateBookingSpinner() {
+        bookingAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, bookingDisplayList);
+        bookingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        bookingSpinner.setAdapter(bookingAdapter);
+        bookingSpinner.setVisibility(View.VISIBLE);
+
+        bookingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onChildAdded(DataSnapshot snap, String prevKey) {
-                Message m = snap.getValue(Message.class);
-                messageList.add(m);
-                messageAdapter.notifyItemInserted(messageList.size() - 1);
-                messagesRecyclerView.scrollToPosition(messageList.size() - 1);
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                BookingInfo selectedBooking = bookingList.get(position);
+                selectedBookingId = selectedBooking.bookingId;
+                selectedReceiverId = selectedBooking.otherPartyId;
+                messageList.clear();
+                messageAdapter.notifyDataSetChanged();
+                loadMessagesForBooking();
+            }
 
-                loadingProgressBar.setVisibility(View.GONE);
-                messageInput.setEnabled(true);
-                sendButton.setEnabled(true);
-            }
-            @Override public void onChildChanged(DataSnapshot s, String k) {}
-            @Override public void onChildRemoved(DataSnapshot s) {}
-            @Override public void onChildMoved(DataSnapshot s, String k) {}
             @Override
-            public void onCancelled(DatabaseError error) {
-                loadingProgressBar.setVisibility(View.GONE);
-                Toast.makeText(
-                        MessagingActivity.this,
-                        "Failed to load messages.",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
+
+        // Optionally, auto-select the first booking if available
+        if (!bookingList.isEmpty()) {
+            bookingSpinner.setSelection(0);
+        }
     }
 
     private void sendMessage() {
         String text = messageInput.getText().toString().trim();
 
-        // guard: no chat selected
-        if (messagesRef == null) {
-            Toast.makeText(
-                    this,
-                    "Please select a booking first",
-                    Toast.LENGTH_SHORT
-            ).show();
-            return;
-        }
-
         if (text.isEmpty()) {
-            Toast.makeText(
-                    this,
-                    "Type a message before sending",
-                    Toast.LENGTH_SHORT
-            ).show();
+            Toast.makeText(this, "Type a message before sending", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // disable until write completes
-        sendButton.setEnabled(false);
-        loadingProgressBar.setVisibility(View.VISIBLE);
+        if (selectedBookingId == null || selectedReceiverId == null) {
+            Toast.makeText(this, "No session or receiver found. Unable to send message.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        if (messagesRef == null) {
+            messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(selectedBookingId);
+        }
+
+        // Create the message object
         String msgId = messagesRef.push().getKey();
+
         Message msg = new Message(
                 msgId,
                 currentUserId,
-                selectedTutorId,
+                selectedReceiverId,
                 text,
                 System.currentTimeMillis()
         );
+
+        // Write the message to Firebase Realtime Database
         messagesRef.child(msgId)
                 .setValue(msg)
-                .addOnSuccessListener(aVoid -> {
-                    messageInput.setText("");
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(
-                            this,
-                            "Failed to send",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                })
                 .addOnCompleteListener(task -> {
                     loadingProgressBar.setVisibility(View.GONE);
                     sendButton.setEnabled(true);
+                    if (task.isSuccessful()) {
+                        messageInput.setText("");
+                    } else {
+                        Toast.makeText(this, "Failed to send message.", Toast.LENGTH_SHORT).show();
+                    }
                 });
+    }
+
+    private void loadMessagesForBooking() {
+        if (selectedBookingId == null) return;
+
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        messagesRef = FirebaseDatabase.getInstance().getReference("messages").child(selectedBookingId);
+
+        messageList.clear();
+        messageAdapter.notifyDataSetChanged();
+
+        messagesRef.orderByChild("timestamp").limitToLast(50)
+                .addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
+                        Message m = snapshot.getValue(Message.class);
+                        if (m != null) {
+                            messageList.add(m);
+                            messageAdapter.notifyItemInserted(messageList.size() - 1);
+                            messagesRecyclerView.scrollToPosition(messageList.size() - 1);
+                        }
+                        loadingProgressBar.setVisibility(View.GONE);
+                        messageInput.setEnabled(true);
+                        sendButton.setEnabled(true);
+                    }
+
+                    @Override public void onChildChanged(@NonNull DataSnapshot snapshot, String previousChildName) {}
+                    @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+                    @Override public void onChildMoved(@NonNull DataSnapshot snapshot, String previousChildName) {}
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        loadingProgressBar.setVisibility(View.GONE);
+                        Toast.makeText(MessagingActivity.this, "Failed to load messages.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    // Helper class for bookings
+    private static class BookingInfo {
+        String bookingId;
+        String otherPartyId;
+        String otherPartyName;
+        String subject;
+        String date;
+
+        BookingInfo(String bookingId, String otherPartyId, String otherPartyName, String subject, String date) {
+            this.bookingId = bookingId;
+            this.otherPartyId = otherPartyId;
+            this.otherPartyName = otherPartyName;
+            this.subject = subject;
+            this.date = date;
+        }
     }
 }

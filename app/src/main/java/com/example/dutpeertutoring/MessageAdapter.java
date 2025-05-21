@@ -45,6 +45,9 @@ public class MessageAdapter extends BaseAdapter {
         // Check if the message is sent by the current user or the other user
         boolean isCurrentUser = message.getSenderId().equals(currentUserId);
 
+        // Use messageId to match messages for a specific session and differentiate between tutor/student
+        String currentMessageId = message.getMessageId();
+
         // Choose the appropriate layout for the sender or receiver
         if (convertView == null) {
             int layoutId = isCurrentUser ? R.layout.item_message_sent : R.layout.item_message_received;
@@ -57,6 +60,10 @@ public class MessageAdapter extends BaseAdapter {
         // Set message text and timestamp
         messageText.setText(message.getText());
         timestamp.setText(formatTimestamp(message.getTimestamp()));
+
+        // Optionally, display the messageId to ensure it's linked correctly (could be used for debugging)
+        // TextView messageIdTextView = convertView.findViewById(R.id.messageId);
+        // messageIdTextView.setText(currentMessageId);
 
         return convertView;
     }

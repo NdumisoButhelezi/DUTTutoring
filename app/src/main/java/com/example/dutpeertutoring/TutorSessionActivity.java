@@ -16,8 +16,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -37,6 +40,7 @@ public class TutorSessionActivity extends AppCompatActivity {
     private TextView tutorNameTextView, tutorRatingStatus;
     private RatingBar ratingBar;
     private String tutorName, tutorSurname, tutorId;
+    private DatabaseReference messagesRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,14 +49,16 @@ public class TutorSessionActivity extends AppCompatActivity {
 
         firestore = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+        tutorId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Initialize Firebase Realtime Database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        messagesRef = database.getReference("messages"); // Initialize messagesRef to point to "messages" node
 
         // Initialize UI components
-        tutorNameTextView = findViewById(R.id.tutorNameTextView);  // Initialize TextView
+        tutorNameTextView = findViewById(R.id.tutorNameTextView);
         btnSelectPdf = findViewById(R.id.btnSelectPdf);
         btnUploadPdf = findViewById(R.id.btnUploadPdf);
-
-        // Get current tutor's ID
-        tutorId = auth.getCurrentUser().getUid();
 
         // Fetch tutor's name and surname
         fetchTutorProfile();
@@ -72,6 +78,14 @@ public class TutorSessionActivity extends AppCompatActivity {
             }
         });
 
+        // Chat Button
+        FloatingActionButton fabChat = findViewById(R.id.fabChat);
+        fabChat.setOnClickListener(view -> {
+            Intent intent = new Intent(TutorSessionActivity.this, MessagingActivity.class);
+            intent.putExtra("isTutor", true);  // Pass flag to MessagingActivity indicating this is a tutor
+            startActivity(intent);
+        });
+
         // Request storage permissions if not granted
         if (!checkStoragePermission()) {
             requestStoragePermission();
@@ -86,7 +100,7 @@ public class TutorSessionActivity extends AppCompatActivity {
                         tutorName = documentSnapshot.getString("name");
                         tutorSurname = documentSnapshot.getString("surname");
                         String fullName = tutorName + " " + tutorSurname;
-                        if (tutorNameTextView != null) {  // Check if tutorNameTextView is not null
+                        if (tutorNameTextView != null) {
                             tutorNameTextView.setText(fullName); // Display tutor's name
                         }
                     }

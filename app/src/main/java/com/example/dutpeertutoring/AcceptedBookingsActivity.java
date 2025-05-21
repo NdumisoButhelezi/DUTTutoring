@@ -1,5 +1,6 @@
 package com.example.dutpeertutoring;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -32,13 +33,7 @@ public class AcceptedBookingsActivity extends AppCompatActivity implements Stude
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accepted_bookings);
 
-        // Set up toolbar with back button
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Accepted Bookings");
-        }
+
 
         // Initialize RecyclerViews
         acceptedRecycler = findViewById(R.id.acceptedBookingsRecycler);
